@@ -1,32 +1,68 @@
-# React + TypeScript + Vite
+# サイバーガーディアンズ 〜セキュリティ勇者の冒険〜(仮題)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**「戦うたびに、セキュリティに強くなる」**
 
-Currently, two official plugins are available:
+ITセキュリティの知識をターン制RPGのバトルシステムに変換した、ブラウザで遊べる学習ゲームです。
+敵は実在するサイバー攻撃、プレイヤーのスキルは実在するセキュリティ対策に対応しており、
+**遊び方を覚えること = セキュリティ対策を覚えること** になるのが最大の特徴です。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 1バトル2〜3分、全体で20〜30分のショートRPG
+- 対象: IT初学者(セキュリティ研修の入口として)
+- インストール不要、URLひとつで遊べる静的サイト(サーバー・DB不使用)
 
-## React Compiler
+## スクリーンショット
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+(準備中)
 
-## Expanding the Oxlint configuration
+## 遊び方
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### コマンド
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+| コマンド | 効果 |
+|---|---|
+| たたかう | 通常攻撃 |
+| スキル | セキュリティ対策で攻撃・防御(リソースを消費) |
+| ぼうぎょ | 被ダメージ半減+リソース回復 |
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### 弱点対策システム(コアメカニクス)
+
+敵ごとに「正しいセキュリティ対策」が弱点になっています。
+
+- **正解のスキル** → WEAK POINT演出+大ダメージ
+- **不正解のスキル** → ほとんど効かず、相棒のAI妖精「パッチ」がヒントをくれる
+- **負けても大丈夫** → ヒントをもらって即リトライ(「負けて覚える」のも対策のうち)
+
+敵を倒すと「セキュリティ手帳」に記録され、その攻撃の正体と現実での対策をパッチが解説します。
+
+### ステータスの読み替え
+
+| RPGの用語 | 本作での意味 |
+|---|---|
+| HP | システム稼働率 |
+| MP | リソース |
+
+## 収録している敵と対策(開発中・順次追加)
+
+| 敵キャラ | モチーフの攻撃 | 弱点(= 正しい対策) |
+|---|---|---|
+| ワームスライム | ワーム型マルウェア | ワクチンスキャン(ウイルス対策ソフト) |
+| フィッシング・アングラー | フィッシング詐欺 | URLかくにん(リンク先・送り主の確認) |
+| ブルートフォース・ゴーレム | 総当たり攻撃 | 二要素認証(2FA/MFA) |
+
+
+## 技術構成
+
+| 項目 | 採用技術 |
+|---|---|
+| フレームワーク | Vite + React + TypeScript |
+| セーブ | localStorage(開発予定。サーバー・DB不使用) |
+| デプロイ | Vercel(予定) |
+
+
+## 教育コンテンツの方針
+
+- セキュリティ解説は IPA・総務省等の公的機関の情報を典拠とします
+- 「これで完全に防げる」といった言い切り表現は使いません(多層防御の考え方と矛盾させない)
+- 攻撃の再現手順は扱いません。学べるのは「見分け方と守り方」のみです
+
+
