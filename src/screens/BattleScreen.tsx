@@ -3,7 +3,7 @@ import { Sprite } from '../components/Sprite'
 import { Window } from '../components/Window'
 import { ENEMIES } from '../data/enemies'
 import { SKILLS } from '../data/skills'
-import { MAX_HP, MAX_MP } from '../data/constants'
+import { MAX_HP, MAX_MP, PLAYER_NAME } from '../data/constants'
 import type { GameState } from '../game/reducer'
 import type { Menu, Skill } from '../types'
 
@@ -51,7 +51,7 @@ export function BattleScreen({
 
       {/* プレイヤーステータス */}
       <div className="mb-2.5 flex items-center gap-3.5 text-[13px]">
-        <span>シグ</span>
+        <span>{PLAYER_NAME}</span>
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="w-[60px] text-hp-player">稼働率</span>

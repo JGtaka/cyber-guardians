@@ -1,4 +1,5 @@
 import type { BattleEvent, Enemy, Skill } from '../types'
+import { PLAYER_NAME } from '../data/constants'
 import { randInt } from './random'
 
 // バトル1ターン分のイベント列を生成する関数群。
@@ -45,7 +46,7 @@ function pushEnemyTurn(
     dmg = cut(randInt(8, 12))
     events.push({ t: `${enemy.name}の たいあたり！`, fx: null })
     events.push({
-      t: `シグに ${dmg} のダメージ！`,
+      t: `${PLAYER_NAME}に ${dmg} のダメージ！`,
       fx: { pHp: -dmg, shake: true },
     })
   } else if (enemy.id === 'angler') {
@@ -56,14 +57,14 @@ function pushEnemyTurn(
         fx: null,
       })
       events.push({
-        t: `リソースを 8 うばわれた！ シグに ${dmg} のダメージ！`,
+        t: `リソースを 8 うばわれた！ ${PLAYER_NAME}に ${dmg} のダメージ！`,
         fx: { pHp: -dmg, pMp: -8, shake: true },
       })
     } else {
       dmg = cut(randInt(10, 14))
       events.push({ t: `${enemy.name}の ニセメールこうげき！`, fx: null })
       events.push({
-        t: `シグに ${dmg} のダメージ！`,
+        t: `${PLAYER_NAME}に ${dmg} のダメージ！`,
         fx: { pHp: -dmg, shake: true },
       })
     }
@@ -74,7 +75,7 @@ function pushEnemyTurn(
       fx: { golem: 3 },
     })
     events.push({
-      t: `シグに ${dmg} のダメージ！`,
+      t: `${PLAYER_NAME}に ${dmg} のダメージ！`,
       fx: { pHp: -dmg, shake: true },
     })
   }
@@ -87,7 +88,7 @@ function pushEnemyTurn(
   }
   if (snap.pHp - dmg <= 0) {
     events.push({
-      t: 'シグは システムダウン してしまった…',
+      t: `${PLAYER_NAME}は システムダウン してしまった…`,
       fx: null,
       then: 'gameover',
     })
@@ -100,7 +101,7 @@ function pushEnemyTurn(
 export function buildAttackEvents(snap: BattleSnapshot): BattleEvent[] {
   const dmg = randInt(11, 16)
   const events: BattleEvent[] = [
-    { t: 'シグの こうげき！ デバッグソードの ひとふり！', fx: null },
+    { t: `${PLAYER_NAME}の こうげき！ デバッグソードの ひとふり！`, fx: null },
     {
       t: `${snap.enemy.name}に ${dmg} のダメージ！`,
       fx: { eHp: -dmg, eFlash: true },
@@ -124,7 +125,7 @@ export function buildSkillEvents(
   const events: BattleEvent[] = []
   if (skill.type === 'buff') {
     events.push({
-      t: 'シグは ファイアウォールを てんかいした！',
+      t: `${PLAYER_NAME}は ファイアウォールを てんかいした！`,
       fx: { pMp: -skill.mp, fw: 3 },
     })
     events.push({
@@ -135,7 +136,7 @@ export function buildSkillEvents(
   } else if (skill.id === enemy.weak) {
     // 正解: WEAK POINT演出 + 大ダメージ
     const dmg = randInt(30, 38)
-    events.push({ t: `シグの ${skill.name}！`, fx: { pMp: -skill.mp } })
+    events.push({ t: `${PLAYER_NAME}の ${skill.name}！`, fx: { pMp: -skill.mp } })
     events.push({
       t: '▶ WEAK POINT!! こうかは ばつぐんだ！',
       fx: { weak: true, eFlash: true },
@@ -154,7 +155,7 @@ export function buildSkillEvents(
   } else {
     // 不正解: 微ダメージ + パッチのヒント(MPのムダで学ぶ)
     const dmg = 5
-    events.push({ t: `シグの ${skill.name}！`, fx: { pMp: -skill.mp } })
+    events.push({ t: `${PLAYER_NAME}の ${skill.name}！`, fx: { pMp: -skill.mp } })
     events.push({
       t: `…あまり きいていない。 ${enemy.name}に ${dmg} のダメージ。`,
       fx: { eHp: -dmg },
@@ -171,7 +172,7 @@ export function buildSkillEvents(
 export function buildGuardEvents(snap: BattleSnapshot): BattleEvent[] {
   const events: BattleEvent[] = [
     {
-      t: 'シグは みをまもっている。(リソースが 6 かいふく)',
+      t: `${PLAYER_NAME}は みをまもっている。(リソースが 6 かいふく)`,
       fx: { pMp: 6 },
     },
   ]
