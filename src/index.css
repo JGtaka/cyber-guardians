@@ -18,6 +18,7 @@
   --animate-shake: cg-shake 0.35s;
   --animate-blink: cg-blink 1s infinite;
   --animate-weak: cg-weak 0.65s forwards;
+  --animate-float: cg-float 2s infinite;
 
   @keyframes cg-shake {
     0%, 100% { transform: translateX(0); }
@@ -33,5 +34,9 @@
   @keyframes cg-weak {
     0% { opacity: 0.9; }
     100% { opacity: 0; }
+  }
+  @keyframes cg-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
   }
 }
