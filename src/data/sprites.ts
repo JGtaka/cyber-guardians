@@ -1,7 +1,7 @@
-import type { EnemyId, SpriteData } from '../types'
+import type { SpriteData, SpriteId } from '../types'
 
 // box-shadow方式のドット絵データ(本実装でドット絵PNGに差し替え予定)
-export const SPRITES: Record<EnemyId, SpriteData> = {
+export const SPRITES: Record<SpriteId, SpriteData> = {
   slime: {
     px: 9,
     colors: { 1: '#5dcaa5', 0: '#14142b' },
@@ -18,7 +18,7 @@ export const SPRITES: Record<EnemyId, SpriteData> = {
     ],
   },
   angler: {
-    px: 9,
+    px: 10,
     colors: { 1: '#d4537e', 2: '#ffffff', 3: '#14142b', 4: '#fac775' },
     map: [
       '...4........',
@@ -33,22 +33,35 @@ export const SPRITES: Record<EnemyId, SpriteData> = {
       '.1....1.....',
     ],
   },
-  golem: {
+  maou: {
     px: 9,
-    colors: { 1: '#b4b2a9', 3: '#5f5e5a', 4: '#fac775' },
+    colors: { 1: '#8a56c9', 4: '#fac775', 0: '#14142b' },
     map: [
+      '.1........1.',
+      '.11......11.',
       '..11111111..',
       '.1111111111.',
-      '113311113311',
+      '114411114411',
       '111111111111',
-      '.1111441111.',
-      '.1111441111.',
-      '111111111111',
-      '11.111111.11',
-      '11.111111.11',
-      '...111111...',
-      '...11..11...',
-      '..111..111..',
+      '.1110000111.',
+      '.1111111111.',
+      '..11.11.11..',
+      '.11..11..11.',
+    ],
+  },
+  // 相棒クローンコードの立ち絵
+  fairy: {
+    px: 6,
+    colors: { 4: '#fac775', 2: '#aab4e8', 0: '#14142b' },
+    map: [
+      '.2.....2.',
+      '22.444.22',
+      '.2444442.',
+      '..40404..',
+      '..44444..',
+      '...444...',
+      '...444...',
+      '....4....',
     ],
   },
 }
