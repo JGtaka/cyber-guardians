@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'react'
 import { ENEMIES } from './data/enemies'
-import { FINAL_FLOW_INDEX, STORIES } from './data/story'
+import { STORIES } from './data/story'
 import {
   createInitialState,
   flowItemAt,
@@ -139,12 +139,7 @@ export default function App() {
           />
         )}
         {item.k === 'end' && (
-          <ClearScreen
-            onFinalPreview={() =>
-              dispatch({ type: 'enterFlow', fi: FINAL_FLOW_INDEX })
-            }
-            onTitle={() => dispatch({ type: 'toTitle' })}
-          />
+          <ClearScreen onTitle={() => dispatch({ type: 'toTitle' })} />
         )}
         {item.k === 'end2' && (
           <FinaleScreen onTitle={() => dispatch({ type: 'toTitle' })} />

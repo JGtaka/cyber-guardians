@@ -4,17 +4,9 @@ const bigBtnCls =
   'cursor-pointer rounded-[3px] border-4 border-white px-[30px] py-2.5 text-center text-[16px]'
 
 // 第1章クリア画面。
-// 最終決戦への導線は CLAUDE.md の公開方針により公開ビルドでは出さない
-// (2〜4章の実装が終わる v5 で解禁。開発ビルドでのみ動作確認用に表示する)
-const SHOW_FINAL_PREVIEW = import.meta.env.DEV
-
-export function ClearScreen({
-  onFinalPreview,
-  onTitle,
-}: {
-  onFinalPreview: () => void
-  onTitle: () => void
-}) {
+// 最終決戦への導線は CLAUDE.md の公開方針により v5 まで出さない
+// (実装は移植済み。動作確認はデバッグメニューの章ジャンプ実装後にそちらから行う)
+export function ClearScreen({ onTitle }: { onTitle: () => void }) {
   return (
     <div className="py-3.5 text-center">
       <h2 className="mb-4 text-[22px] font-normal text-patch">
@@ -34,14 +26,6 @@ export function ClearScreen({
         <br />
         つづきは本実装(第2章)で!
       </Window>
-      {SHOW_FINAL_PREVIEW && (
-        <button
-          className={`${bigBtnCls} mb-2.5 w-full text-weak`}
-          onClick={onFinalPreview}
-        >
-          ▶ おまけ:最終決戦を体験する
-        </button>
-      )}
       <button className={bigBtnCls} onClick={onTitle}>
         ▶ タイトルへ もどる
       </button>
