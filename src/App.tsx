@@ -18,15 +18,17 @@ import {
   type BattleSnapshot,
 } from './game/battle'
 import { useVisualFx } from './hooks/useVisualFx'
+import { useSoundFx } from './hooks/useSoundFx'
+import { isMuted, playBgm, playSe } from './game/sound'
 import { TitleScreen } from './screens/TitleScreen'
 import { StoryScreen } from './screens/StoryScreen'
 import { BattleScreen } from './screens/BattleScreen'
 import { LessonScreen } from './screens/LessonScreen'
 import { ClearScreen } from './screens/ClearScreen'
 import { FinaleScreen } from './screens/FinaleScreen'
-import type { EnemyId, Skill } from './types'
+import type { BgmId, EnemyId, Skill } from './types'
 
-// 進行のうちセーブ対象(名前・章・図鑑解放・既読)を書き出す
+// 進行のうちセーブ対象(名前・章・図鑑解放・既読・ミュート)を書き出す
 function persist(state: GameState) {
   writeSave({
     v: 1,
@@ -34,6 +36,7 @@ function persist(state: GameState) {
     chapter: state.chapter,
     zukan: state.zukan,
     seenStories: state.seenStories,
+    muted: isMuted(),
   })
 }
 
@@ -42,6 +45,7 @@ export default function App() {
     createInitialState(loadSave()),
   )
   const { shake, weakFx, eFlash } = useVisualFx(state.queue, state.qi)
+  useSoundFx(state.queue, state.qi)
   const item = flowItemAt(state.fi)
 
   // テキスト中の {n} をプレイヤー名に差し込む(Reactの標準機構でエスケープされる)
@@ -57,8 +61,28 @@ export default function App() {
   const battleEnemy = item.k === 'battle' ? ENEMIES[item.e] : null
   const inMaouScript = battleEnemy?.id === 'maou'
 
+  // シーンに応じたBGM。手帳(lesson)は勝利ジングルの続き→無音のまま切り替えない。
+  // 魔王戦も当面 btl_boss(btl_final は v5 の最終章解禁まで使わない)
+  const sceneBgm: BgmId | null = state.gameover
+    ? 'jgl_gameover'
+    : item.k === 'title'
+      ? 'title'
+      : item.k === 'story'
+        ? 'daily'
+        : item.k === 'battle'
+          ? battleEnemy?.boss
+            ? 'btl_boss'
+            : 'btl_normal'
+          : item.k === 'lesson'
+            ? null
+            : 'jgl_clear' // end / end2
+  useEffect(() => {
+    if (sceneBgm) playBgm(sceneBgm)
+  }, [sceneBgm])
+
   const handleCommand = (kind: 'attack' | 'guard' | 'skill', skill?: Skill) => {
     if (!battleEnemy) return
+    playSe('decide')
     const snapshot: BattleSnapshot = {
       enemy: battleEnemy,
       eHp: state.eHp,
@@ -98,8 +122,14 @@ export default function App() {
           <TitleScreen
             naming={state.naming}
             savedName={state.name}
-            onOpenNaming={() => dispatch({ type: 'openNaming' })}
-            onConfirm={(name) => dispatch({ type: 'confirmName', name })}
+            onOpenNaming={() => {
+              playSe('decide')
+              dispatch({ type: 'openNaming' })
+            }}
+            onConfirm={(name) => {
+              playSe('decide')
+              dispatch({ type: 'confirmName', name })
+            }}
           />
         )}
         {item.k === 'story' && (
@@ -108,8 +138,14 @@ export default function App() {
             si={state.si}
             seen={state.seenStories.includes(item.id)}
             disp={disp}
-            onAdvance={() => dispatch({ type: 'advanceStory' })}
-            onSkip={() => dispatch({ type: 'skipStory' })}
+            onAdvance={() => {
+              playSe('message')
+              dispatch({ type: 'advanceStory' })
+            }}
+            onSkip={() => {
+              playSe('decide')
+              dispatch({ type: 'skipStory' })
+            }}
           />
         )}
         {item.k === 'battle' && battleEnemy && (
@@ -118,31 +154,55 @@ export default function App() {
             enemy={battleEnemy}
             eFlash={eFlash}
             disp={disp}
-            onAdvance={() => dispatch({ type: 'advance' })}
+            onAdvance={() => {
+              playSe('message')
+              dispatch({ type: 'advance' })
+            }}
             onAttack={() => handleCommand('attack')}
             onGuard={() => handleCommand('guard')}
             onSkill={(skill) => handleCommand('skill', skill)}
-            onOpenMenu={(menu) => dispatch({ type: 'setMenu', menu })}
-            onPatch={() =>
+            onOpenMenu={(menu) => {
+              playSe('cursor')
+              dispatch({ type: 'setMenu', menu })
+            }}
+            onPatch={() => {
+              playSe('decide')
               dispatch({ type: 'startQueue', events: buildPatchEvents() })
-            }
-            onMythos={() =>
+            }}
+            onMythos={() => {
+              playSe('decide')
               dispatch({ type: 'startQueue', events: buildMythosEvents() })
-            }
-            onRetry={() => dispatch({ type: 'retry' })}
+            }}
+            onRetry={() => {
+              playSe('continue')
+              dispatch({ type: 'retry' })
+            }}
           />
         )}
         {item.k === 'lesson' && (
           <ZukanLesson
             enemyId={item.e}
-            onNext={() => dispatch({ type: 'enterFlow', fi: state.fi + 1 })}
+            onNext={() => {
+              playSe('decide')
+              dispatch({ type: 'enterFlow', fi: state.fi + 1 })
+            }}
           />
         )}
         {item.k === 'end' && (
-          <ClearScreen onTitle={() => dispatch({ type: 'toTitle' })} />
+          <ClearScreen
+            onTitle={() => {
+              playSe('decide')
+              dispatch({ type: 'toTitle' })
+            }}
+          />
         )}
         {item.k === 'end2' && (
-          <FinaleScreen onTitle={() => dispatch({ type: 'toTitle' })} />
+          <FinaleScreen
+            onTitle={() => {
+              playSe('decide')
+              dispatch({ type: 'toTitle' })
+            }}
+          />
         )}
       </div>
     </div>

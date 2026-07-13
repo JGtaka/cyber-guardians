@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MuteButton } from '../components/MuteButton'
 import { Sprite } from '../components/Sprite'
 import { Window } from '../components/Window'
 import { DEFAULT_NAME, NAME_MAX_LEN } from '../data/constants'
@@ -58,6 +59,8 @@ export function TitleScreen({
 }) {
   return (
     <div className="py-[26px] text-center">
+      {/* 親フレーム(App)基準の右上。名前入力ダイアログ(z-6)より手前に置く */}
+      <MuteButton className="absolute top-2 right-2 z-[7]" />
       <p className="text-[13px] text-sub">
         セキュリティ学習RPG(第1章プロトタイプ)
       </p>
@@ -79,6 +82,18 @@ export function TitleScreen({
       <button className={bigBtnCls} onClick={onOpenNaming}>
         ▶ ぼうけんに でる
       </button>
+      {/* 魔王魂は素材利用にクレジット表記が必須(docs/sound.md・ASSETS.md) */}
+      <p className="mt-5 text-[11px] text-sub">
+        音楽・効果音:
+        <a
+          href="https://maou.audio/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          魔王魂
+        </a>
+      </p>
       {naming && <NamingDialog savedName={savedName} onConfirm={onConfirm} />}
     </div>
   )

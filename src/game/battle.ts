@@ -23,7 +23,8 @@ function pushWinIfDefeated(
   remainingEHp: number,
 ): boolean {
   if (remainingEHp > 0) return false
-  events.push({ t: `${enemy.name}を たおした!`, fx: null })
+  // 撃破の瞬間にバトルBGMを止めて勝利ジングルへ(鳴り終わると無音)
+  events.push({ t: `${enemy.name}を たおした!`, fx: { win: true } })
   events.push({
     t: 'セキュリティ手帳に きろくされた!',
     fx: null,
@@ -89,7 +90,7 @@ export function buildAttackEvents(snap: BattleSnapshot): BattleEvent[] {
     { t: '{n}の こうげき! デバッグソードのひとふり!', fx: null },
     {
       t: `${snap.enemy.name}に ${dmg} のダメージ!`,
-      fx: { eHp: -dmg, eFlash: true },
+      fx: { eHp: -dmg, eFlash: true, se: 'attack' },
     },
   ]
   if (!pushWinIfDefeated(events, snap.enemy, snap.eHp - dmg)) {
@@ -111,7 +112,7 @@ export function buildSkillEvents(
   if (skill.type === 'buff') {
     events.push({
       t: '{n}は ファイアウォールを展開した!',
-      fx: { pMp: -skill.mp, fw: 3 },
+      fx: { pMp: -skill.mp, fw: 3, se: 'skill' },
     })
     events.push({
       t: 'しばらくのあいだ 受けるダメージが半減する!',
@@ -128,6 +129,7 @@ export function buildSkillEvents(
     })
     events.push({
       t: `${enemy.name}に ${dmg} のダメージ!`,
+      // 弱点ヒットの音は直前の WEAK POINT(se_weak)に任せ、ここでは鳴らさない
       fx: { eHp: -dmg, eFlash: true },
     })
     if (!pushWinIfDefeated(events, enemy, snap.eHp - dmg)) {
@@ -143,7 +145,7 @@ export function buildSkillEvents(
     events.push({ t: `{n}の ${skill.name}!`, fx: { pMp: -skill.mp } })
     events.push({
       t: `…あまり効いていない。${enemy.name}に ${dmg} のダメージ。`,
-      fx: { eHp: -dmg },
+      fx: { eHp: -dmg, se: 'skill' },
     })
     if (!pushWinIfDefeated(events, enemy, snap.eHp - dmg)) {
       events.push({
@@ -255,7 +257,7 @@ export function buildMythosEvents(): BattleEvent[] {
     { t: '▶ 奥義 ミュートス!!', fx: { weak: true, eFlash: true } },
     {
       t: 'セキュリティ手帳に『ゼロデイの魔王』が 記録された!',
-      fx: { eHp: -999 },
+      fx: { eHp: -999, win: true },
     },
     {
       t: '未知は、既知の物語になった。——魔王は力を失い、消滅していく…!',
