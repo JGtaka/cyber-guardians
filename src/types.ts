@@ -46,7 +46,7 @@ export interface SpriteData {
 // 効果音のID(public/se/se_<id>.mp3 に対応。docs/sound.md のトリガー対応表参照)
 export type SeId =
   | 'attack' // 攻撃ヒット
-  | 'skill' // スキル命中・バフ展開
+  | 'skill' // スキル命中(弱点以外)・バフ展開
   | 'weak' // WEAK POINT(画面フラッシュと同時)
   | 'damage' // 被弾(画面シェイクと同時)
   | 'cursor' // メニュー切替

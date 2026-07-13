@@ -129,7 +129,8 @@ export function buildSkillEvents(
     })
     events.push({
       t: `${enemy.name}に ${dmg} のダメージ!`,
-      fx: { eHp: -dmg, eFlash: true, se: 'skill' },
+      // 弱点ヒットの音は直前の WEAK POINT(se_weak)に任せ、ここでは鳴らさない
+      fx: { eHp: -dmg, eFlash: true },
     })
     if (!pushWinIfDefeated(events, enemy, snap.eHp - dmg)) {
       events.push({
@@ -144,7 +145,7 @@ export function buildSkillEvents(
     events.push({ t: `{n}の ${skill.name}!`, fx: { pMp: -skill.mp } })
     events.push({
       t: `…あまり効いていない。${enemy.name}に ${dmg} のダメージ。`,
-      fx: { eHp: -dmg },
+      fx: { eHp: -dmg, se: 'skill' },
     })
     if (!pushWinIfDefeated(events, enemy, snap.eHp - dmg)) {
       events.push({

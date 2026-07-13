@@ -27,8 +27,8 @@
 | se_message.mp3 | メッセージ送り(▼クリック) | (TODO) | https://soundeffect-lab.info/ | 2026-07-13 |
 | se_cursor.mp3 | メニュー切替(スキル一覧の開閉) | (TODO) | https://soundeffect-lab.info/ | 2026-07-13 |
 | se_attack.mp3 | 通常攻撃ヒット | (TODO) | https://soundeffect-lab.info/ | 2026-07-13 |
-| se_skill.mp3 | スキル命中・ファイアウォール展開 | (TODO) | https://soundeffect-lab.info/ | 2026-07-13 |
-| se_weak.mp3 | WEAK POINT(画面フラッシュと同時) | (TODO) | https://soundeffect-lab.info/ | 2026-07-13 |
+| se_skill.mp3 | スキル命中(弱点以外)・ファイアウォール展開 | (TODO) | https://soundeffect-lab.info/ | 2026-07-13 |
+| se_weak.mp3 | WEAK POINT=弱点ヒット(画面フラッシュと同時。se_skillとは鳴らし分け) | (TODO) | https://soundeffect-lab.info/ | 2026-07-13 |
 | se_damage.mp3 | 被弾(画面シェイクと同時) | (TODO) | https://soundeffect-lab.info/ | 2026-07-13 |
 | se_continue.mp3 | ゲームオーバーからのリトライ | (TODO) | https://soundeffect-lab.info/ | 2026-07-13 |
 
