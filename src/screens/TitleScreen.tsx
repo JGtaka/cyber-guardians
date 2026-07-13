@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MuteButton } from '../components/MuteButton'
 import { Sprite } from '../components/Sprite'
 import { Window } from '../components/Window'
 import { DEFAULT_NAME, NAME_MAX_LEN } from '../data/constants'
@@ -58,6 +59,8 @@ export function TitleScreen({
 }) {
   return (
     <div className="py-[26px] text-center">
+      {/* 親フレーム(App)基準の右上。名前入力ダイアログ(z-6)より手前に置く */}
+      <MuteButton className="absolute top-2 right-2 z-[7]" />
       <p className="text-[13px] text-sub">
         セキュリティ学習RPG(第1章プロトタイプ)
       </p>

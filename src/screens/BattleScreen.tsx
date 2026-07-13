@@ -1,4 +1,5 @@
 import { Bar } from '../components/Bar'
+import { MuteButton } from '../components/MuteButton'
 import { Sprite } from '../components/Sprite'
 import { Window } from '../components/Window'
 import { SKILLS } from '../data/skills'
@@ -50,7 +51,10 @@ export function BattleScreen({
           {enemy.boss ? '★ ' : ''}
           {enemy.name}
         </span>
-        <span className="text-[13px] text-sub">Lv.{enemy.lv}</span>
+        <span className="flex items-center gap-2">
+          <span className="text-[13px] text-sub">Lv.{enemy.lv}</span>
+          <MuteButton />
+        </span>
       </div>
       {isMaou && state.mPhase < 2 ? (
         <div className="rounded-[2px] border-[3px] border-white p-[2px]">

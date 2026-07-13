@@ -43,6 +43,28 @@ export interface SpriteData {
   map: string[]
 }
 
+// 効果音のID(public/se/se_<id>.mp3 に対応。docs/sound.md のトリガー対応表参照)
+export type SeId =
+  | 'attack' // 攻撃ヒット
+  | 'skill' // スキル命中・バフ展開
+  | 'weak' // WEAK POINT(画面フラッシュと同時)
+  | 'damage' // 被弾(画面シェイクと同時)
+  | 'cursor' // メニュー切替
+  | 'decide' // 決定
+  | 'message' // メッセージ送り
+  | 'continue' // ゲームオーバーからのリトライ
+
+// BGMのID(public/bgm/<id>.mp3 に対応)
+export type BgmId =
+  | 'title'
+  | 'daily'
+  | 'btl_normal'
+  | 'btl_boss'
+  | 'btl_final' // 最終決戦用(v5まで未使用)
+  | 'jgl_win'
+  | 'jgl_clear'
+  | 'jgl_gameover'
+
 // メッセージ表示と同時に適用される数値変化・演出。
 // テキスト中の {n} はプレイヤー名に差し込まれる
 export interface Fx {
@@ -55,6 +77,8 @@ export interface Fx {
   eFlash?: boolean
   shake?: boolean
   weak?: boolean
+  se?: SeId // このイベント表示と同時に鳴らす効果音(weak/shake があればそちら優先)
+  win?: boolean // 勝利ジングルを開始する(バトルBGMをフェードアウト)
 }
 
 // イベントキュー消化後の遷移先

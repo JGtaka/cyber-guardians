@@ -12,6 +12,7 @@ export interface SaveData {
   chapter: number // クリア済みの章(0 = 未クリア)
   zukan: EnemyId[] // 図鑑(セキュリティ手帳)の解放済み敵
   seenStories: StoryId[]
+  muted: boolean // ミュート状態(docs/sound.md: セーブに含める)
 }
 
 export const emptySave: SaveData = {
@@ -20,6 +21,7 @@ export const emptySave: SaveData = {
   chapter: 0,
   zukan: [],
   seenStories: [],
+  muted: false,
 }
 
 // 名前の正規化(空白除去・6文字まで。空ならデフォルト名)
@@ -48,6 +50,7 @@ export function loadSave(): SaveData | null {
       seenStories: Array.isArray(o.seenStories)
         ? o.seenStories.filter(isStoryId)
         : [],
+      muted: o.muted === true,
     }
   } catch {
     return null
