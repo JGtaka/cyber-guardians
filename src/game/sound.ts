@@ -76,16 +76,22 @@ let unlocked = false
 let muted = loadSave()?.muted ?? false
 Howler.mute(muted)
 
-export function playSe(id: SeId) {
-  // 最初のユーザー操作(タイトルの決定など)でBGMを解禁する
-  if (!unlocked) {
-    unlocked = true
-    if (pendingBgm) {
-      const id2 = pendingBgm
-      pendingBgm = null
-      playBgm(id2)
-    }
+// ブラウザの自動再生制限を解除し、保留中のBGMを開始する。
+// 操作前の自動再生はブラウザにブロックされるため、最初のクリック/タップ/キー入力を合図にする
+function unlock() {
+  if (unlocked) return
+  unlocked = true
+  if (pendingBgm) {
+    const id = pendingBgm
+    pendingBgm = null
+    playBgm(id)
   }
+}
+document.addEventListener('pointerdown', unlock, { once: true })
+document.addEventListener('keydown', unlock, { once: true })
+
+export function playSe(id: SeId) {
+  unlock()
   seHowls[id].play()
 }
 

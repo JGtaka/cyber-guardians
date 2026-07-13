@@ -123,7 +123,6 @@ export default function App() {
             naming={state.naming}
             savedName={state.name}
             onOpenNaming={() => {
-              // 最初のユーザー操作=タイトルの決定。ここでBGMが解禁される
               playSe('decide')
               dispatch({ type: 'openNaming' })
             }}
