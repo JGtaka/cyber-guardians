@@ -82,6 +82,18 @@ export function TitleScreen({
       <button className={bigBtnCls} onClick={onOpenNaming}>
         ▶ ぼうけんに でる
       </button>
+      {/* 魔王魂は素材利用にクレジット表記が必須(docs/sound.md・ASSETS.md) */}
+      <p className="mt-5 text-[11px] text-sub">
+        音楽・効果音:
+        <a
+          href="https://maou.audio/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          魔王魂
+        </a>
+      </p>
       {naming && <NamingDialog savedName={savedName} onConfirm={onConfirm} />}
     </div>
   )
