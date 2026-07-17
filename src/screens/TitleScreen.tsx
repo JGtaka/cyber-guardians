@@ -51,19 +51,19 @@ export function TitleScreen({
   savedName,
   onOpenNaming,
   onConfirm,
+  onContinue,
 }: {
   naming: boolean
   savedName: string
   onOpenNaming: () => void
   onConfirm: (name: string) => void
+  onContinue?: () => void // 章クリア済みセーブがあるときだけ渡される
 }) {
   return (
     <div className="py-[26px] text-center">
       {/* 親フレーム(App)基準の右上。名前入力ダイアログ(z-6)より手前に置く */}
       <MuteButton className="absolute top-2 right-2 z-[7]" />
-      <p className="text-[13px] text-sub">
-        セキュリティ学習RPG(第1章プロトタイプ)
-      </p>
+      <p className="text-[13px] text-sub">セキュリティ学習RPG(第1〜2章)</p>
       <h1 className="mt-2.5 mb-1 text-[26px] font-normal">
         サイバーガーディアンズ
       </h1>
@@ -79,9 +79,16 @@ export function TitleScreen({
         <br />
         スキルで敵の弱点を見抜いて倒そう!
       </Window>
-      <button className={bigBtnCls} onClick={onOpenNaming}>
-        ▶ ぼうけんに でる
-      </button>
+      <div className="flex flex-col items-center gap-2.5">
+        <button className={bigBtnCls} onClick={onOpenNaming}>
+          ▶ ぼうけんに でる
+        </button>
+        {onContinue && (
+          <button className={bigBtnCls} onClick={onContinue}>
+            ▶ つづきから(第2章)
+          </button>
+        )}
+      </div>
       {/* 魔王魂は素材利用にクレジット表記が必須(docs/sound.md・ASSETS.md) */}
       <p className="mt-5 text-[11px] text-sub">
         音楽・効果音:

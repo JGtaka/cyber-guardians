@@ -8,7 +8,7 @@ const speakerColorCls = (s: string) =>
     ? 'text-patch'
     : s === '{n}'
       ? 'text-hp-player'
-      : s === '村人'
+      : s === '村人' || s === '店主'
         ? 'text-mp'
         : s === ''
           ? 'text-sub'
@@ -24,6 +24,7 @@ function SpeakerSprite({ speaker }: { speaker: string }) {
     )
   }
   if (speaker === 'アングラー') return <Sprite id="angler" scale={0.8} />
+  if (speaker === '木馬将軍') return <Sprite id="trojan" scale={0.8} />
   if (speaker === '魔王') return <Sprite id="maou" scale={0.8} />
   return <div className="h-12" />
 }
