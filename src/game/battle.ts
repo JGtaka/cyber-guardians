@@ -43,13 +43,32 @@ function pushEnemyTurn(
   const half = defended || fwTurns > 0
   const cut = (d: number) => (half ? Math.ceil(d / 2) : d)
   let dmg: number
-  if (enemy.id === 'slime') {
-    dmg = cut(randInt(8, 12))
+  if (enemy.id === 'slime' || enemy.id === 'slime2') {
+    dmg = cut(enemy.id === 'slime2' ? randInt(10, 14) : randInt(8, 12))
     events.push({ t: `${enemy.name}の たいあたり!`, fx: null })
     events.push({
       t: `{n}に ${dmg} のダメージ!`,
       fx: { pHp: -dmg, shake: true },
     })
+  } else if (enemy.id === 'trojan') {
+    if (Math.random() < 0.35) {
+      dmg = cut(randInt(14, 18))
+      events.push({
+        t: `${enemy.name}は ニセの贈り物ばこを 投げつけた!`,
+        fx: null,
+      })
+      events.push({
+        t: `箱から ワナが とびだした! {n}に ${dmg} のダメージ!`,
+        fx: { pHp: -dmg, shake: true },
+      })
+    } else {
+      dmg = cut(randInt(12, 16))
+      events.push({ t: `${enemy.name}の とっしん!`, fx: null })
+      events.push({
+        t: `{n}に ${dmg} のダメージ!`,
+        fx: { pHp: -dmg, shake: true },
+      })
+    }
   } else if (Math.random() < 0.35) {
     dmg = cut(6)
     events.push({ t: `${enemy.name}は 怪しいリンクを送りつけた!`, fx: null })

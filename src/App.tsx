@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'react'
 import { ENEMIES } from './data/enemies'
-import { STORIES } from './data/story'
+import { CH2_FLOW_INDEX, CLEARS, STORIES } from './data/story'
 import {
   createInitialState,
   flowItemAt,
@@ -130,6 +130,14 @@ export default function App() {
               playSe('decide')
               dispatch({ type: 'confirmName', name })
             }}
+            onContinue={
+              state.chapter >= 1
+                ? () => {
+                    playSe('decide')
+                    dispatch({ type: 'continueGame', fi: CH2_FLOW_INDEX })
+                  }
+                : undefined
+            }
           />
         )}
         {item.k === 'story' && (
@@ -190,6 +198,15 @@ export default function App() {
         )}
         {item.k === 'end' && (
           <ClearScreen
+            ch={item.ch}
+            onNext={
+              CLEARS[item.ch]?.hasNext
+                ? () => {
+                    playSe('decide')
+                    dispatch({ type: 'enterFlow', fi: state.fi + 1 })
+                  }
+                : undefined
+            }
             onTitle={() => {
               playSe('decide')
               dispatch({ type: 'toTitle' })

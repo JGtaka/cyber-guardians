@@ -1,6 +1,6 @@
 // ゲーム全体で使う型定義
 
-export type SkillId = 'vaccine' | 'url' | 'tfa' | 'firewall'
+export type SkillId = 'vaccine' | 'url' | 'scan' | 'tfa' | 'firewall'
 
 export interface Skill {
   id: SkillId
@@ -9,7 +9,7 @@ export interface Skill {
   type: 'attack' | 'buff'
 }
 
-export type EnemyId = 'slime' | 'angler' | 'maou'
+export type EnemyId = 'slime' | 'angler' | 'slime2' | 'trojan' | 'maou'
 
 // 会話の立ち絵を含むスプライトのID
 export type SpriteId = EnemyId | 'fairy'
@@ -97,6 +97,9 @@ export type StoryId =
   | 'ch1_open'
   | 'boss_pre'
   | 'boss_post'
+  | 'ch2_open'
+  | 'boss2_pre'
+  | 'boss2_post'
   | 'final_pre'
   | 'ending'
 
@@ -115,7 +118,7 @@ export type FlowItem =
   | { k: 'story'; id: StoryId }
   | { k: 'battle'; e: EnemyId }
   | { k: 'lesson'; e: EnemyId }
-  | { k: 'end' } // 第1章クリア
+  | { k: 'end'; ch: number } // 章クリア(ch = クリアした章番号)
   | { k: 'end2' } // 最終決戦後の「完」
 
 export type Menu = 'main' | 'skill'

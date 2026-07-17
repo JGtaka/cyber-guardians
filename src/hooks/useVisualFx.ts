@@ -23,7 +23,14 @@ export function useVisualFx(queue: BattleEvent[], qi: number) {
       setWeakFx(true)
       timers.push(window.setTimeout(() => setWeakFx(false), 650))
     }
-    return () => timers.forEach((t) => clearTimeout(t))
+    return () => {
+      timers.forEach((t) => clearTimeout(t))
+      // タイマーが発火する前に次のイベントへ進んだ場合(高速タップ時)、
+      // 解除タイマーごと消えて演出が点きっぱなしになるため、ここで必ず戻す
+      if (fx.eFlash) setEFlash(false)
+      if (fx.shake) setShake(false)
+      if (fx.weak) setWeakFx(false)
+    }
   }, [queue, qi])
 
   return { shake, weakFx, eFlash }

@@ -44,6 +44,7 @@ export type GameAction =
   | { type: 'advanceStory' } // 会話を1行進める(最終行なら次のフローへ)
   | { type: 'skipStory' } // 既読の会話を最後まで飛ばす
   | { type: 'enterFlow'; fi: number } // 指定位置へジャンプ(最終決戦プレビュー等)
+  | { type: 'continueGame'; fi: number } // タイトルの「つづきから」。全回復して指定位置へ
   | { type: 'toTitle' }
   | { type: 'retry' } // ゲームオーバーから同じ敵に再挑戦
   | { type: 'setMenu'; menu: Menu }
@@ -136,7 +137,7 @@ function enterFlow(s: GameState, fi: number): GameState {
     }
   }
   if (item.k === 'end') {
-    next = { ...next, chapter: Math.max(next.chapter, 1) }
+    next = { ...next, chapter: Math.max(next.chapter, item.ch) }
   }
   return next
 }
@@ -199,6 +200,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
     case 'enterFlow':
       return enterFlow(state, action.fi)
+    case 'continueGame':
+      return enterFlow({ ...state, pHp: MAX_HP, pMp: MAX_MP }, action.fi)
     case 'toTitle':
       return { ...state, fi: -1, si: 0, queue: [], qi: -1, gameover: false }
     case 'retry': {
