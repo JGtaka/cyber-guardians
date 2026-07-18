@@ -22,7 +22,15 @@ export interface BattleSnapshot {
 
 // デーモンが暗号化封印の対象にできるスキル。
 // バックアップだけは封印できない(=「バックアップは奪えない」の学びをメカニクスで表現)
-const SEALABLE: SkillId[] = ['vaccine', 'url', 'scan', 'tfa', 'peek', 'call']
+const SEALABLE: SkillId[] = [
+  'vaccine',
+  'url',
+  'scan',
+  'tfa',
+  'peek',
+  'call',
+  'traffic',
+]
 
 const skillName = (id: SkillId) => SKILLS.find((s) => s.id === id)?.name ?? id
 
@@ -97,6 +105,34 @@ function pushEnemyTurn(
         t: `{n}に ${dmg} のダメージ!`,
         fx: { pHp: -dmg, shake: true },
       })
+    }
+  } else if (enemy.id === 'dragon') {
+    // ギミック: 多頭の連続攻撃+大量アクセスでリソースを奪う(DDoS=飽和攻撃の表現)
+    if (Math.random() < 0.4) {
+      dmg = cut(randInt(8, 11))
+      events.push({
+        t: `${enemy.name}の群れが 大量アクセスの洪水を あびせてきた!`,
+        fx: null,
+      })
+      events.push({
+        t: `回線がパンク寸前! {n}に ${dmg} のダメージ! さらにリソースを 10 うばわれた!`,
+        fx: { pHp: -dmg, pMp: -10, shake: true },
+      })
+    } else {
+      const heads = randInt(2, 3)
+      dmg = 0
+      events.push({
+        t: `${enemy.name}の 多頭れんぞくこうげき! ${heads}本の首が おそいかかる!`,
+        fx: null,
+      })
+      for (let i = 0; i < heads; i++) {
+        const hit = cut(randInt(5, 8))
+        dmg += hit
+        events.push({
+          t: `${i + 1}本目の首の かみつき! {n}に ${hit} のダメージ!`,
+          fx: { pHp: -hit, shake: true },
+        })
+      }
     }
   } else if (enemy.id === 'goblin') {
     // ギミック: 行動を先読みして、たまに防御をすりぬける(覗き見の怖さの表現)
