@@ -183,6 +183,30 @@ export const ENEMIES: Record<EnemyId, Enemy> = {
       link: 'https://www.ipa.go.jp/security/10threats/index.html',
     },
   },
+  dragon: {
+    id: 'dragon',
+    name: 'DDoSドラゴン',
+    lv: 17,
+    hp: 140,
+    weak: 'traffic',
+    boss: true,
+    intro: [
+      '無数の翼が 空をおおいつくす——大群を率いる 巨大な影!',
+      'DDoSドラゴンが たちふさがった!',
+      'クローンコード「第5章のボスです! たくさんの首の飽和攻撃で、リソースを食いつぶすつもりですよ!」',
+    ],
+    hint: 'クローンコード「力で受け止めるのではなく、入口で交通整理するんです! 通信の、流れの…!」',
+    zukan: {
+      no: 'No.008 DDoS攻撃',
+      real: 'たくさんのコンピュータから一斉に大量のアクセスを送りつけ、サーバーやサービスをパンクさせて止めてしまう攻撃。',
+      taisaku:
+        'トラフィック制御やCDN等の対策サービスで大量アクセスを受け流す。一つの対策に頼らず、多層防御で備える。',
+      genjitsu:
+        'IoT機器を乗っ取ってボットネット化するマルウェア「Mirai」による大規模DDoS攻撃で、多くの有名サービスが一時停止した事例が報告されている。',
+      source: '出典:IPA「情報セキュリティ10大脅威」',
+      link: 'https://www.ipa.go.jp/security/10threats/index.html',
+    },
+  },
   maou: {
     id: 'maou',
     name: 'ゼロデイの魔王',

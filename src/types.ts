@@ -8,6 +8,7 @@ export type SkillId =
   | 'peek'
   | 'backup'
   | 'call'
+  | 'traffic'
   | 'firewall'
 
 export interface Skill {
@@ -26,6 +27,7 @@ export type EnemyId =
   | 'golem'
   | 'witch'
   | 'demon'
+  | 'dragon'
   | 'maou'
 
 // 会話の立ち絵を含むスプライトのID
@@ -126,6 +128,9 @@ export type StoryId =
   | 'ch4_open'
   | 'boss4_pre'
   | 'boss4_post'
+  | 'ch5_open'
+  | 'boss5_pre'
+  | 'boss5_post'
   | 'final_pre'
   | 'ending'
 

@@ -8,7 +8,7 @@ const speakerColorCls = (s: string) =>
     ? 'text-patch'
     : s === '{n}'
       ? 'text-hp-player'
-      : s === '村人' || s === '店主' || s === '衛兵' || s === '案内人'
+      : s === '村人' || s === '店主' || s === '衛兵' || s === '案内人' || s === '管制官'
         ? 'text-mp'
         : s === ''
           ? 'text-sub'

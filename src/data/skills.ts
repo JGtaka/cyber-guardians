@@ -9,5 +9,6 @@ export const SKILLS: Skill[] = [
   { id: 'peek', name: 'のぞきみブロック', mp: 8, type: 'attack' },
   { id: 'backup', name: 'バックアップ', mp: 8, type: 'attack' },
   { id: 'call', name: 'かくにんのでんわ', mp: 8, type: 'attack' },
+  { id: 'traffic', name: 'トラフィックせいぎょ', mp: 8, type: 'attack' },
   { id: 'firewall', name: 'ファイアウォール', mp: 10, type: 'buff' },
 ]
