@@ -103,6 +103,34 @@ export const STORIES: Record<StoryId, Story> = {
       { s: 'クローンコード', t: '{n}さんの『{n}1234』も、今日ちゃんと変えましょうね? …ん? 雪原の村から、救援要請です…!' },
     ],
   },
+  ch4_open: {
+    title: '第4章:社内NW雪原',
+    lines: [
+      { s: 'クローンコード', t: 'ここが社内ネットワーク雪原です、{n}さん。王国の仕事場をつなぐ静かな雪の原…のはずなんですが、寒すぎます…!' },
+      { s: '村人', t: '情シス様、助けてくれ…。村のデータがぜんぶ氷漬けにされて、開けなくなっちまったんだ…。' },
+      { s: '???', t: 'お困りかしら? わたしは雪原の案内人。データを氷漬けにした魔物の居場所なら、知っていてよ。ついていらっしゃい。' },
+      { s: '{n}', t: 'ありがたい…! 案内、おねがいします!' },
+      { s: 'クローンコード', t: '({n}さん…なんだか話がうますぎる気がします。でも、手がかりはこれだけですね…ついていきましょう)' },
+    ],
+  },
+  boss4_pre: {
+    title: '雪原の奥・氷の谷',
+    lines: [
+      { s: '案内人', t: 'さあ、着いたわ。この谷の奥よ。……ふふ。それにしても、あなたたち。' },
+      { s: '案内人', t: '本当に、なんでもわたしを信じて ついてきてしまうのね?' },
+      { s: 'クローンコード', t: '!! 下がってください{n}さん、出口が氷でふさがれています——罠です!' },
+      { s: 'ウィッチ', t: '正解♪ わたしはソーシャル・ウィッチ。人の心につけこむのが、わたしの魔法。あなたの『信じる心』、いただくわ!' },
+    ],
+  },
+  boss4_post: {
+    title: '第4章クリア',
+    lines: [
+      { s: 'クローンコード', t: 'ランサムウェアはデータを人質にとる攻撃です。でも、バックアップがあれば人質は取り返せます。身代金を払う必要はないんです!' },
+      { s: '{n}', t: 'それに、案内人の言葉をうのみにしたのも反省だね…。うまい話は、まず確認…!' },
+      { s: 'クローンコード', t: 'それ、現実でも“あるある”なんですよ! 上司や取引先になりすまして送金させる詐欺もあるんです。あやしい依頼は、別の手段で本人確認です!' },
+      { s: 'クローンコード', t: '人は だまされます。でも、確認できる人は最強の防御にもなる——{n}さんのことですよ!' },
+    ],
+  },
   final_pre: {
     title: '最終決戦プレビュー:クラウド天空城・最奥',
     lines: [
@@ -150,6 +178,14 @@ export const FLOW: FlowItem[] = [
   { k: 'story', id: 'boss3_post' },
   { k: 'lesson', e: 'golem' },
   { k: 'end', ch: 3 },
+  { k: 'story', id: 'ch4_open' },
+  { k: 'story', id: 'boss4_pre' },
+  { k: 'battle', e: 'witch' },
+  { k: 'lesson', e: 'witch' },
+  { k: 'battle', e: 'demon' },
+  { k: 'story', id: 'boss4_post' },
+  { k: 'lesson', e: 'demon' },
+  { k: 'end', ch: 4 },
   { k: 'story', id: 'final_pre' },
   { k: 'battle', e: 'maou' },
   { k: 'story', id: 'ending' },
@@ -161,13 +197,18 @@ export const FINAL_FLOW_INDEX = FLOW.findIndex(
   (it) => it.k === 'story' && it.id === 'final_pre',
 )
 
-// タイトルの「つづきから」で入る各章の開始位置
-export const CH2_FLOW_INDEX = FLOW.findIndex(
-  (it) => it.k === 'story' && it.id === 'ch2_open',
-)
-export const CH3_FLOW_INDEX = FLOW.findIndex(
-  (it) => it.k === 'story' && it.id === 'ch3_open',
-)
+// タイトルの「つづきから」で入る各章の開始位置(章番号 → FLOWの位置)
+const chapterStart = (id: StoryId) =>
+  FLOW.findIndex((it) => it.k === 'story' && it.id === id)
+
+export const CHAPTER_STARTS: Record<number, number> = {
+  2: chapterStart('ch2_open'),
+  3: chapterStart('ch3_open'),
+  4: chapterStart('ch4_open'),
+}
+
+// 実装済みの最新章(「つづきから」の上限)
+export const LAST_CHAPTER = 4
 
 // 章クリア画面の内容(learned = 今日おぼえた対策 / hasNext = 次章へ進めるか)
 export const CLEARS: Record<
@@ -200,7 +241,17 @@ export const CLEARS: Record<
       '入力する手元・画面の覗き見に注意',
     ],
     teaser:
-      '雪原の村から救援要請——村人のデータが氷漬けにされたという…。つづきは第4章で!',
+      '雪原の村から救援要請——村人のデータが氷漬けにされたという…。',
+    hasNext: true,
+  },
+  4: {
+    learned: [
+      '大切なデータは日頃からバックアップ',
+      '身代金は払わない(バックアップから復旧)',
+      'うまい話・急な依頼は別の手段で本人確認',
+    ],
+    teaser:
+      'はるか上空——クラウド天空城の門に、ドラゴンの大群が集まりつつある…。つづきは第5章で!',
     hasNext: false,
   },
 }
