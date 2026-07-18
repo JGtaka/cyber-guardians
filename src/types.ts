@@ -1,6 +1,14 @@
 // ゲーム全体で使う型定義
 
-export type SkillId = 'vaccine' | 'url' | 'scan' | 'tfa' | 'peek' | 'firewall'
+export type SkillId =
+  | 'vaccine'
+  | 'url'
+  | 'scan'
+  | 'tfa'
+  | 'peek'
+  | 'backup'
+  | 'call'
+  | 'firewall'
 
 export interface Skill {
   id: SkillId
@@ -16,6 +24,8 @@ export type EnemyId =
   | 'trojan'
   | 'goblin'
   | 'golem'
+  | 'witch'
+  | 'demon'
   | 'maou'
 
 // 会話の立ち絵を含むスプライトのID
@@ -80,6 +90,8 @@ export interface Fx {
   pMp?: number
   fw?: number // ファイアウォールの残りターン数(上書き)
   eAtk?: number // 敵の攻撃力ボーナス(上書き。ゴーレムの毎ターン上昇ギミック用)
+  psn?: number // まどわしの毒の残りターン数(上書き。ウィッチのギミック用)
+  seal?: SkillId | null // 暗号化封印中のスキル(上書き。null=解除。デーモンのギミック用)
   mPhase?: number // 魔王戦の段階(上書き): 0=無敵 1=クローン展開後 2=弱点発生
   mActs?: number // 魔王戦・無敵段階での行動回数(上書き)
   eFlash?: boolean
@@ -111,6 +123,9 @@ export type StoryId =
   | 'ch3_open'
   | 'boss3_pre'
   | 'boss3_post'
+  | 'ch4_open'
+  | 'boss4_pre'
+  | 'boss4_post'
   | 'final_pre'
   | 'ending'
 

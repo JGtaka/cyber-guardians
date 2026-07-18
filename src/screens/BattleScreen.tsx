@@ -99,6 +99,11 @@ export function BattleScreen({
           ◆ ファイアウォール展開中(のこり{state.fwTurns}ターン)
         </p>
       )}
+      {state.psnTurns > 0 && (
+        <p className="mb-2 text-[12px] text-hp-enemy">
+          ◆ まどわしの毒(のこり{state.psnTurns}ターン・毎ターン4ダメージ)
+        </p>
+      )}
 
       {/* メッセージウィンドウ */}
       <Window
@@ -163,18 +168,26 @@ export function BattleScreen({
         </Window>
       ) : !inMsg && state.menu === 'skill' ? (
         <Window>
-          {SKILLS.map((sk) => (
-            <button
-              key={sk.id}
-              className={`${btnCls} flex w-full justify-between ${
-                !isMaou && state.pMp < sk.mp ? 'text-disabled' : ''
-              }`}
-              onClick={() => onSkill(sk)}
-            >
-              <span>▶ {sk.name}</span>
-              <span className="text-[13px] text-mp">MP {sk.mp}</span>
-            </button>
-          ))}
+          {SKILLS.map((sk) => {
+            const isSealed = state.sealed === sk.id
+            return (
+              <button
+                key={sk.id}
+                className={`${btnCls} flex w-full justify-between ${
+                  isSealed || (!isMaou && state.pMp < sk.mp)
+                    ? 'text-disabled'
+                    : ''
+                }`}
+                onClick={() => onSkill(sk)}
+              >
+                <span>
+                  ▶ {sk.name}
+                  {isSealed && '(暗号化中)'}
+                </span>
+                <span className="text-[13px] text-mp">MP {sk.mp}</span>
+              </button>
+            )
+          })}
           <button
             className={`${btnCls} text-sub`}
             onClick={() => onOpenMenu('main')}
