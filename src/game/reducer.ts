@@ -26,6 +26,7 @@ export interface GameState {
   pHp: number // 稼働率
   pMp: number // リソース
   fwTurns: number // ファイアウォールの残りターン
+  eAtk: number // 敵の攻撃力ボーナス(ゴーレムの毎ターン上昇ギミック)
   mPhase: number // 魔王戦の段階: 0=無敵 1=クローン展開後 2=弱点発生
   mActs: number // 魔王戦・無敵段階での行動回数
   menu: Menu
@@ -66,6 +67,7 @@ export function createInitialState(save: SaveData | null): GameState {
     pHp: MAX_HP,
     pMp: MAX_MP,
     fwTurns: 0,
+    eAtk: 0,
     mPhase: 0,
     mActs: 0,
     menu: 'main',
@@ -89,6 +91,7 @@ function applyFx(s: GameState, fx?: Fx | null): GameState {
     pHp: fx.pHp ? clamp(s.pHp + fx.pHp, MAX_HP) : s.pHp,
     pMp: fx.pMp ? clamp(s.pMp + fx.pMp, MAX_MP) : s.pMp,
     fwTurns: fx.fw ?? s.fwTurns,
+    eAtk: fx.eAtk ?? s.eAtk,
     mPhase: fx.mPhase ?? s.mPhase,
     mActs: fx.mActs ?? s.mActs,
   }
@@ -116,7 +119,7 @@ function enterFlow(s: GameState, fi: number): GameState {
   }
   if (item.k === 'battle') {
     const enemy = ENEMIES[item.e]
-    next = { ...next, eHp: enemy.hp, fwTurns: 0, menu: 'main' }
+    next = { ...next, eHp: enemy.hp, fwTurns: 0, eAtk: 0, menu: 'main' }
     if (item.e === 'maou') {
       // 最終決戦は万全の状態で開始(スクリプトバトル)
       next = { ...next, pHp: MAX_HP, pMp: MAX_MP, mPhase: 0, mActs: 0 }
@@ -215,6 +218,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           pHp: MAX_HP,
           pMp: MAX_MP,
           fwTurns: 0,
+          eAtk: 0,
           mPhase: 0,
           mActs: 0,
           gameover: false,

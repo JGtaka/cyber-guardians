@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'react'
 import { ENEMIES } from './data/enemies'
-import { CH2_FLOW_INDEX, CLEARS, STORIES } from './data/story'
+import { CH2_FLOW_INDEX, CH3_FLOW_INDEX, CLEARS, STORIES } from './data/story'
 import {
   createInitialState,
   flowItemAt,
@@ -80,6 +80,10 @@ export default function App() {
     if (sceneBgm) playBgm(sceneBgm)
   }, [sceneBgm])
 
+  // タイトルの「つづきから」で入る章(クリア済みの次の章。実装済みは第3章まで)
+  const continueChapter = Math.min(state.chapter + 1, 3)
+  const continueFi = continueChapter >= 3 ? CH3_FLOW_INDEX : CH2_FLOW_INDEX
+
   const handleCommand = (kind: 'attack' | 'guard' | 'skill', skill?: Skill) => {
     if (!battleEnemy) return
     playSe('decide')
@@ -89,6 +93,7 @@ export default function App() {
       pHp: state.pHp,
       pMp: state.pMp,
       fwTurns: state.fwTurns,
+      eAtk: state.eAtk,
       mActs: state.mActs,
     }
     if (kind === 'skill') dispatch({ type: 'setMenu', menu: 'main' })
@@ -130,11 +135,12 @@ export default function App() {
               playSe('decide')
               dispatch({ type: 'confirmName', name })
             }}
+            continueChapter={continueChapter}
             onContinue={
               state.chapter >= 1
                 ? () => {
                     playSe('decide')
-                    dispatch({ type: 'continueGame', fi: CH2_FLOW_INDEX })
+                    dispatch({ type: 'continueGame', fi: continueFi })
                   }
                 : undefined
             }
