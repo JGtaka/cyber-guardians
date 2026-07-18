@@ -79,7 +79,7 @@ export type BgmId =
   | 'daily'
   | 'btl_normal'
   | 'btl_boss'
-  | 'btl_final' // 最終決戦用(v5まで未使用)
+  | 'btl_final' // 最終決戦(魔王戦)用
   | 'jgl_win'
   | 'jgl_clear'
   | 'jgl_gameover'

@@ -1,6 +1,6 @@
 import { Window } from '../components/Window'
 
-// 最終決戦(体験版)クリア後の「完」画面
+// 最終決戦クリア後の「完」画面
 export function FinaleScreen({ onTitle }: { onTitle: () => void }) {
   return (
     <div className="py-3.5 text-center">
@@ -15,7 +15,9 @@ export function FinaleScreen({ onTitle }: { onTitle: () => void }) {
         ・記録して共有し、未知を既知にする(ミュートス)
       </Window>
       <Window className="mb-3.5 text-left text-[13px] leading-[1.9] text-sub">
-        第2章〜第4章の物語、そしてここまでの旅は本実装で。
+        ネット王国に、平和が戻りました。
+        <br />
+        きみの「セキュリティ手帳」は、現実でもきっと役に立ちます。
         <br />
         プレイありがとうございました!
       </Window>

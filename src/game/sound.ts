@@ -18,7 +18,7 @@ const BGM_DEFS: Record<BgmId, { loop: boolean; vol: number }> = {
   daily: { loop: true, vol: 1 },
   btl_normal: { loop: true, vol: 1 },
   btl_boss: { loop: true, vol: 1 },
-  btl_final: { loop: true, vol: 1 }, // 最終決戦用(v5まで未使用)
+  btl_final: { loop: true, vol: 1 }, // 最終決戦(魔王戦)用
   jgl_win: { loop: false, vol: 1 }, // ジングルはループなし=鳴り終わると無音
   jgl_clear: { loop: false, vol: 1 },
   jgl_gameover: { loop: false, vol: 1 },
