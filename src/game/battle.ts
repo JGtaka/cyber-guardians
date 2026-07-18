@@ -13,6 +13,7 @@ export interface BattleSnapshot {
   pHp: number
   pMp: number
   fwTurns: number
+  eAtk: number // 敵の攻撃力ボーナス(ゴーレムの毎ターン上昇ギミック)
   mActs: number // 魔王戦・無敵段階での行動回数
 }
 
@@ -43,7 +44,48 @@ function pushEnemyTurn(
   const half = defended || fwTurns > 0
   const cut = (d: number) => (half ? Math.ceil(d / 2) : d)
   let dmg: number
-  if (enemy.id === 'slime' || enemy.id === 'slime2') {
+  let halfMsgHandled = false // 半減表示を分岐内で済ませた(または不要=先読み貫通)
+  if (enemy.id === 'goblin') {
+    // ギミック: 行動を先読みして、たまに防御をすりぬける(覗き見の怖さの表現)
+    if (Math.random() < 0.3) {
+      halfMsgHandled = true
+      dmg = randInt(11, 15)
+      events.push({
+        t: `${enemy.name}は こちらの動きを 覗き見ていた!`,
+        fx: null,
+      })
+      events.push({
+        t: `先読みの一撃! ぼうぎょを すりぬけて {n}に ${dmg} のダメージ!`,
+        fx: { pHp: -dmg, shake: true },
+      })
+    } else {
+      dmg = cut(randInt(10, 14))
+      events.push({ t: `${enemy.name}の ふいうち!`, fx: null })
+      events.push({
+        t: `{n}に ${dmg} のダメージ!`,
+        fx: { pHp: -dmg, shake: true },
+      })
+    }
+  } else if (enemy.id === 'golem') {
+    // ギミック: 総当たりの勢いで毎ターン攻撃力が上がる(長期戦は不利=早く弱点を突く動機づけ)
+    dmg = cut(randInt(9, 13) + snap.eAtk)
+    events.push({ t: `${enemy.name}の こじあけこうげき!`, fx: null })
+    events.push({
+      t: `{n}に ${dmg} のダメージ!`,
+      fx: { pHp: -dmg, shake: true },
+    })
+    // 半減表示は攻撃力上昇の口上より先に出す(メッセージの流れを守る)
+    if (half) {
+      events.push({ t: '防御で ダメージを半減した!', fx: null })
+      halfMsgHandled = true
+    }
+    if (snap.eAtk < 8) {
+      events.push({
+        t: '総当たりの勢いが増していく…! ゴーレムの こうげきが 激しくなった!',
+        fx: { eAtk: snap.eAtk + 2 },
+      })
+    }
+  } else if (enemy.id === 'slime' || enemy.id === 'slime2') {
     dmg = cut(enemy.id === 'slime2' ? randInt(10, 14) : randInt(8, 12))
     events.push({ t: `${enemy.name}の たいあたり!`, fx: null })
     events.push({
@@ -84,7 +126,7 @@ function pushEnemyTurn(
       fx: { pHp: -dmg, shake: true },
     })
   }
-  if (half) {
+  if (half && !halfMsgHandled) {
     events.push({ t: '防御で ダメージを半減した!', fx: null })
   }
   // ファイアウォールの残りターンを表示なしで1減らす

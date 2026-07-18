@@ -49,12 +49,14 @@ function NamingDialog({
 export function TitleScreen({
   naming,
   savedName,
+  continueChapter,
   onOpenNaming,
   onConfirm,
   onContinue,
 }: {
   naming: boolean
   savedName: string
+  continueChapter: number // 「つづきから」で入る章
   onOpenNaming: () => void
   onConfirm: (name: string) => void
   onContinue?: () => void // 章クリア済みセーブがあるときだけ渡される
@@ -63,7 +65,7 @@ export function TitleScreen({
     <div className="py-[26px] text-center">
       {/* 親フレーム(App)基準の右上。名前入力ダイアログ(z-6)より手前に置く */}
       <MuteButton className="absolute top-2 right-2 z-[7]" />
-      <p className="text-[13px] text-sub">セキュリティ学習RPG(第1〜2章)</p>
+      <p className="text-[13px] text-sub">セキュリティ学習RPG(第1〜3章)</p>
       <h1 className="mt-2.5 mb-1 text-[26px] font-normal">
         サイバーガーディアンズ
       </h1>
@@ -85,7 +87,7 @@ export function TitleScreen({
         </button>
         {onContinue && (
           <button className={bigBtnCls} onClick={onContinue}>
-            ▶ つづきから(第2章)
+            ▶ つづきから(第{continueChapter}章)
           </button>
         )}
       </div>
