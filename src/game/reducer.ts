@@ -9,6 +9,7 @@ import type {
   Fx,
   FlowItem,
   Menu,
+  SkillId,
   StoryId,
 } from '../types'
 
@@ -27,6 +28,8 @@ export interface GameState {
   pMp: number // リソース
   fwTurns: number // ファイアウォールの残りターン
   eAtk: number // 敵の攻撃力ボーナス(ゴーレムの毎ターン上昇ギミック)
+  psnTurns: number // まどわしの毒の残りターン(ウィッチのギミック)
+  sealed: SkillId | null // 暗号化封印中のスキル(デーモンのギミック)
   mPhase: number // 魔王戦の段階: 0=無敵 1=クローン展開後 2=弱点発生
   mActs: number // 魔王戦・無敵段階での行動回数
   menu: Menu
@@ -68,6 +71,8 @@ export function createInitialState(save: SaveData | null): GameState {
     pMp: MAX_MP,
     fwTurns: 0,
     eAtk: 0,
+    psnTurns: 0,
+    sealed: null,
     mPhase: 0,
     mActs: 0,
     menu: 'main',
@@ -92,6 +97,9 @@ function applyFx(s: GameState, fx?: Fx | null): GameState {
     pMp: fx.pMp ? clamp(s.pMp + fx.pMp, MAX_MP) : s.pMp,
     fwTurns: fx.fw ?? s.fwTurns,
     eAtk: fx.eAtk ?? s.eAtk,
+    psnTurns: fx.psn ?? s.psnTurns,
+    // seal は null で「解除」を表すため、undefined(変更なし)とは区別する
+    sealed: fx.seal !== undefined ? fx.seal : s.sealed,
     mPhase: fx.mPhase ?? s.mPhase,
     mActs: fx.mActs ?? s.mActs,
   }
@@ -119,7 +127,15 @@ function enterFlow(s: GameState, fi: number): GameState {
   }
   if (item.k === 'battle') {
     const enemy = ENEMIES[item.e]
-    next = { ...next, eHp: enemy.hp, fwTurns: 0, eAtk: 0, menu: 'main' }
+    next = {
+      ...next,
+      eHp: enemy.hp,
+      fwTurns: 0,
+      eAtk: 0,
+      psnTurns: 0,
+      sealed: null,
+      menu: 'main',
+    }
     if (item.e === 'maou') {
       // 最終決戦は万全の状態で開始(スクリプトバトル)
       next = { ...next, pHp: MAX_HP, pMp: MAX_MP, mPhase: 0, mActs: 0 }
@@ -140,7 +156,13 @@ function enterFlow(s: GameState, fi: number): GameState {
     }
   }
   if (item.k === 'end') {
-    next = { ...next, chapter: Math.max(next.chapter, item.ch) }
+    // 章クリアで全回復(章をまたぐ消耗による事故死を防ぎ、難易度を章単位で設計する)
+    next = {
+      ...next,
+      chapter: Math.max(next.chapter, item.ch),
+      pHp: MAX_HP,
+      pMp: MAX_MP,
+    }
   }
   return next
 }
@@ -219,6 +241,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           pMp: MAX_MP,
           fwTurns: 0,
           eAtk: 0,
+          psnTurns: 0,
+          sealed: null,
           mPhase: 0,
           mActs: 0,
           gameover: false,

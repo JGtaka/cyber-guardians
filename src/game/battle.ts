@@ -1,4 +1,5 @@
-import type { BattleEvent, Enemy, Skill } from '../types'
+import type { BattleEvent, Enemy, Skill, SkillId } from '../types'
+import { SKILLS } from '../data/skills'
 import { randInt } from './random'
 
 // バトル1ターン分のイベント列を生成する関数群。
@@ -14,8 +15,16 @@ export interface BattleSnapshot {
   pMp: number
   fwTurns: number
   eAtk: number // 敵の攻撃力ボーナス(ゴーレムの毎ターン上昇ギミック)
+  psnTurns: number // まどわしの毒の残りターン(ウィッチのギミック)
+  sealed: SkillId | null // 暗号化封印中のスキル(デーモンのギミック)
   mActs: number // 魔王戦・無敵段階での行動回数
 }
+
+// デーモンが暗号化封印の対象にできるスキル。
+// バックアップだけは封印できない(=「バックアップは奪えない」の学びをメカニクスで表現)
+const SEALABLE: SkillId[] = ['vaccine', 'url', 'scan', 'tfa', 'peek', 'call']
+
+const skillName = (id: SkillId) => SKILLS.find((s) => s.id === id)?.name ?? id
 
 // 敵撃破時の締めイベントを追加する。撃破していれば true
 function pushWinIfDefeated(
@@ -45,7 +54,51 @@ function pushEnemyTurn(
   const cut = (d: number) => (half ? Math.ceil(d / 2) : d)
   let dmg: number
   let halfMsgHandled = false // 半減表示を分岐内で済ませた(または不要=先読み貫通)
-  if (enemy.id === 'goblin') {
+  if (enemy.id === 'witch') {
+    // ギミック: 味方のふりをして毒を盛る(ソーシャルエンジニアリングの表現)
+    if (snap.psnTurns === 0 && Math.random() < 0.4) {
+      dmg = 0
+      halfMsgHandled = true // この手番は攻撃しないので半減表示は不要
+      events.push({
+        t: `${enemy.name}は やさしく ほほえんだ。「お疲れでしょう? 回復のまじないを あげるわ」`,
+        fx: null,
+      })
+      events.push({
+        t: '…それは ニセの回復だった! {n}は まどわしの毒に おかされた!(毎ターンダメージ)',
+        fx: { psn: 3, shake: true },
+      })
+    } else {
+      dmg = cut(randInt(11, 15))
+      events.push({ t: `${enemy.name}の こおりのつぶて!`, fx: null })
+      events.push({
+        t: `{n}に ${dmg} のダメージ!`,
+        fx: { pHp: -dmg, shake: true },
+      })
+    }
+  } else if (enemy.id === 'demon') {
+    // ギミック: スキルを暗号化して封印(ランサムウェアの表現)。バックアップは封印できない
+    if (snap.sealed === null && Math.random() < 0.45) {
+      dmg = 0
+      halfMsgHandled = true // この手番は攻撃しないので半減表示は不要
+      const target = SEALABLE[randInt(0, SEALABLE.length - 1)]
+      events.push({ t: `${enemy.name}の あんごうか こうげき!`, fx: null })
+      events.push({
+        t: `『${skillName(target)}』が 暗号化されて つかえなくなった! デーモン「返してほしくば 身代金を はらうんだな!」`,
+        fx: { seal: target },
+      })
+      events.push({
+        t: 'クローンコード「はらっちゃダメです! それに——バックアップだけは、絶対に暗号化できませんから!」',
+        fx: null,
+      })
+    } else {
+      dmg = cut(randInt(12, 16))
+      events.push({ t: `${enemy.name}の こおりのかぎづめ!`, fx: null })
+      events.push({
+        t: `{n}に ${dmg} のダメージ!`,
+        fx: { pHp: -dmg, shake: true },
+      })
+    }
+  } else if (enemy.id === 'goblin') {
     // ギミック: 行動を先読みして、たまに防御をすりぬける(覗き見の怖さの表現)
     if (Math.random() < 0.3) {
       halfMsgHandled = true
@@ -133,7 +186,19 @@ function pushEnemyTurn(
   if (fwTurns > 0) {
     events.push({ t: '', fx: { fw: fwTurns - 1 }, skip: true })
   }
-  if (snap.pHp - dmg <= 0) {
+  // まどわしの毒の継続ダメージ(防御では減らせない)
+  let psnDmg = 0
+  if (snap.psnTurns > 0) {
+    psnDmg = 4
+    events.push({
+      t: `まどわしの毒が {n}を むしばむ! ${psnDmg} のダメージ!`,
+      fx: { pHp: -psnDmg, psn: snap.psnTurns - 1, shake: true },
+    })
+    if (snap.psnTurns - 1 === 0) {
+      events.push({ t: 'まどわしの毒の 効果が切れた!', fx: null })
+    }
+  }
+  if (snap.pHp - dmg - psnDmg <= 0) {
     events.push({
       t: '{n}は システムダウンしてしまった…',
       fx: null,
@@ -166,6 +231,15 @@ export function buildSkillEvents(
   skill: Skill,
 ): BattleEvent[] {
   const { enemy } = snap
+  if (skill.id === snap.sealed) {
+    return [
+      {
+        t: `${skill.name}は 暗号化されていて つかえない! (バックアップなら 取り戻せるかも…)`,
+        fx: null,
+        then: 'command',
+      },
+    ]
+  }
   if (snap.pMp < skill.mp) {
     return [{ t: 'リソースが たりない!', fx: null, then: 'command' }]
   }
@@ -194,6 +268,13 @@ export function buildSkillEvents(
       fx: { eHp: -dmg, eFlash: true },
     })
     if (!pushWinIfDefeated(events, enemy, snap.eHp - dmg)) {
+      // デーモン戦: バックアップ(弱点)ヒットで暗号化されたスキルも復元する
+      if (enemy.id === 'demon' && snap.sealed !== null) {
+        events.push({
+          t: `バックアップから復元! 暗号化されていた『${skillName(snap.sealed)}』が もとに戻った!`,
+          fx: { seal: null },
+        })
+      }
       events.push({
         t: 'クローンコード「それです! 正しい対策は最強の武器ですね!」',
         fx: null,

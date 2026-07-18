@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'react'
 import { ENEMIES } from './data/enemies'
-import { CH2_FLOW_INDEX, CH3_FLOW_INDEX, CLEARS, STORIES } from './data/story'
+import { CHAPTER_STARTS, CLEARS, LAST_CHAPTER, STORIES } from './data/story'
 import {
   createInitialState,
   flowItemAt,
@@ -80,9 +80,9 @@ export default function App() {
     if (sceneBgm) playBgm(sceneBgm)
   }, [sceneBgm])
 
-  // タイトルの「つづきから」で入る章(クリア済みの次の章。実装済みは第3章まで)
-  const continueChapter = Math.min(state.chapter + 1, 3)
-  const continueFi = continueChapter >= 3 ? CH3_FLOW_INDEX : CH2_FLOW_INDEX
+  // タイトルの「つづきから」で入る章(クリア済みの次の章。上限は実装済みの最新章)
+  const continueChapter = Math.min(state.chapter + 1, LAST_CHAPTER)
+  const continueFi = CHAPTER_STARTS[continueChapter]
 
   const handleCommand = (kind: 'attack' | 'guard' | 'skill', skill?: Skill) => {
     if (!battleEnemy) return
@@ -94,6 +94,8 @@ export default function App() {
       pMp: state.pMp,
       fwTurns: state.fwTurns,
       eAtk: state.eAtk,
+      psnTurns: state.psnTurns,
+      sealed: state.sealed,
       mActs: state.mActs,
     }
     if (kind === 'skill') dispatch({ type: 'setMenu', menu: 'main' })
