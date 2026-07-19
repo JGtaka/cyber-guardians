@@ -67,7 +67,9 @@ export default function App() {
     : item.k === 'title'
       ? 'title'
       : item.k === 'story'
-        ? 'daily'
+        ? item.id === 'ending'
+          ? 'ending' // 魔王戦後のエピローグはエンディング曲
+          : 'daily'
         : item.k === 'battle'
           ? inMaouScript
             ? 'btl_final'

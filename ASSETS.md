@@ -9,11 +9,11 @@
 
 `音楽・効果音:魔王魂(https://maou.audio/)`
 
-> [!注意] BGM・SEとも**全17点が魔王魂**(効果音ラボは未使用)。
+> [!注意] BGM・SEとも**全18点が魔王魂**(効果音ラボは未使用)。
 > 魔王魂は**クレジット表記が必須**(商用可・報告不要)。表記場所は自由。
 > フレーズの盗用、楽曲そのものの再配布・音楽配信サービスへの登録は禁止。
 
-## BGM(public/bgm/ 8曲)すべて魔王魂
+## BGM(public/bgm/ 9曲)すべて魔王魂
 
 | ファイル | 用途 | 素材ID | ダウンロード元URL | DL日 |
 |---|---|---|---|---|
@@ -25,6 +25,7 @@
 | jgl_win.mp3 | 勝利ジングル(ループなし) | maou_game_jingle02 | https://maou.audio/sound/game/maou_game_jingle02.mp3 | 2026-07-13 |
 | jgl_clear.mp3 | 章クリアジングル(ループなし) | maou_se_onepoint01 | https://maou.audio/sound/se/maou_se_onepoint01.mp3 | 2026-07-13 |
 | jgl_gameover.mp3 | ゲームオーバー(ループなし) | maou_bgm_8bit20 | https://maou.audio/sound/bgm/maou_bgm_8bit20.mp3 | 2026-07-13 |
+| ending.mp3 | 魔王戦後のエピローグ会話 | maou_bgm_fantasy14 | https://maou.audio/sound/bgm/maou_bgm_fantasy14.mp3 | 2026-07-19 |
 
 一覧ページ(素材の再確認用):
 - 8bit BGM https://maou.audio/category/bgm/bgm-8bit/

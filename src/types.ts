@@ -81,6 +81,7 @@ export type BgmId =
   | 'btl_normal'
   | 'btl_boss'
   | 'btl_final' // 最終決戦(魔王戦)用
+  | 'ending' // 魔王戦後のエピローグ会話用
   | 'jgl_win'
   | 'jgl_clear'
   | 'jgl_gameover'
