@@ -64,7 +64,9 @@ export function StoryScreen({
           </p>
         )}
         <span className={line.s === '' ? 'text-sub' : ''}>{disp(line.t)}</span>
-        <span className="ml-2 inline-block animate-blink">▼</span>
+        <span className="ml-2 inline-block animate-blink">
+          ▼<span className="ml-1 text-[11px] text-sub">PUSH</span>
+        </span>
       </Window>
       <div className="mt-2 flex items-center justify-between text-[11px] text-sub">
         {seen ? (
