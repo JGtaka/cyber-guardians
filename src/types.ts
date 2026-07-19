@@ -72,6 +72,7 @@ export type SeId =
   | 'decide' // 決定
   | 'message' // メッセージ送り
   | 'continue' // ゲームオーバーからのリトライ
+  | 'powerup' // 奥義ミュートスの詠唱(パワーアップ系)
 
 // BGMのID(public/bgm/<id>.mp3 に対応)
 export type BgmId =
@@ -79,7 +80,8 @@ export type BgmId =
   | 'daily'
   | 'btl_normal'
   | 'btl_boss'
-  | 'btl_final' // 最終決戦用(v5まで未使用)
+  | 'btl_final' // 最終決戦(魔王戦)用
+  | 'ending' // 魔王戦後のエピローグ会話用
   | 'jgl_win'
   | 'jgl_clear'
   | 'jgl_gameover'

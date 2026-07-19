@@ -159,10 +159,10 @@ export const STORIES: Record<StoryId, Story> = {
     ],
   },
   final_pre: {
-    title: '最終決戦プレビュー:クラウド天空城・最奥',
+    title: '最終決戦:クラウド天空城・最奥',
     lines: [
-      { s: '', t: '——(体験版のため、物語は最終決戦まで一気に進む)' },
-      { s: '', t: 'クラウド天空城・最奥。基幹システムの中枢を前に、それは立っていた。' },
+      { s: '', t: 'ドラゴンの去った門をくぐり、{n}たちは城の最奥へ——基幹システムの中枢を前に、「それ」は立っていた。' },
+      { s: 'クローンコード', t: '手帳に…載っていません。名前も、正体も、対策も——何ひとつ、わからない相手です…!' },
       { s: '魔王', t: '……ようこそ。ワタシは まだ 名を持たない。誰も知らぬ弱点から生まれた——ゼロデイの魔王。' },
       { s: '魔王', t: 'この国の基幹システムも、王国民の情報も、すべてワタシのものになる。' },
       { s: 'クローンコード', t: 'させません! {n}さん、いきますよ——最後の戦いです!' },
@@ -175,6 +175,7 @@ export const STORIES: Record<StoryId, Story> = {
       { s: 'クローンコード', t: '勝てたのは、備えていたからです! そして——記録して共有すれば、未知はもう未知じゃないんですよ。' },
       { s: 'クローンコード', t: '{n}さん、もう立派な情シスですね!' },
       { s: '', t: '王国民の情報保管庫には、新しい錠前が二つ増えたという。——強いパスワードと、二要素認証。' },
+      { s: '', t: '——そして今日も、凱旋した英雄{n}は誇らしく見回りに出る。日々の備えこそが、王国の平和を守るのだから。' },
     ],
   },
 }
@@ -221,14 +222,10 @@ export const FLOW: FlowItem[] = [
   { k: 'end', ch: 5 },
   { k: 'story', id: 'final_pre' },
   { k: 'battle', e: 'maou' },
+  { k: 'lesson', e: 'maou' }, // ミュートスで「記録」した魔王が手帳に載る(図鑑メカニクス=奥義の伏線回収)
   { k: 'story', id: 'ending' },
   { k: 'end2' },
 ]
-
-// 最終決戦パートの開始位置(公開ビルドでは導線を出さない。CLAUDE.md の公開方針参照)
-export const FINAL_FLOW_INDEX = FLOW.findIndex(
-  (it) => it.k === 'story' && it.id === 'final_pre',
-)
 
 // タイトルの「つづきから」で入る各章の開始位置(章番号 → FLOWの位置)
 const chapterStart = (id: StoryId) =>
@@ -244,10 +241,11 @@ export const CHAPTER_STARTS: Record<number, number> = {
 // 実装済みの最新章(「つづきから」の上限)
 export const LAST_CHAPTER = 5
 
-// 章クリア画面の内容(learned = 今日おぼえた対策 / hasNext = 次章へ進めるか)
+// 章クリア画面の内容(learned = 今日おぼえた対策 / hasNext = 次へ進めるか /
+// nextLabel = 進むボタンの文言。省略時は「第N章へ すすむ」)
 export const CLEARS: Record<
   number,
-  { learned: string[]; teaser: string; hasNext: boolean }
+  { learned: string[]; teaser: string; hasNext: boolean; nextLabel?: string }
 > = {
   1: {
     learned: [
@@ -295,7 +293,8 @@ export const CLEARS: Record<
       '一つに頼らず対策を重ねる「多層防御」',
     ],
     teaser:
-      '城の最奥に、手帳にも載っていない「未知の気配」——最終決戦は封印中。解禁の日を待て…!',
-    hasNext: false,
+      '城の最奥に、手帳にも載っていない「未知の気配」——すべての備えを胸に、いざ最終決戦へ…!',
+    hasNext: true,
+    nextLabel: '▶ 最終決戦へ',
   },
 }

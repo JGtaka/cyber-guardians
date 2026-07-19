@@ -61,18 +61,21 @@ export default function App() {
   const battleEnemy = item.k === 'battle' ? ENEMIES[item.e] : null
   const inMaouScript = battleEnemy?.id === 'maou'
 
-  // シーンに応じたBGM。手帳(lesson)は勝利ジングルの続き→無音のまま切り替えない。
-  // 魔王戦も当面 btl_boss(btl_final は v5 の最終章解禁まで使わない)
+  // シーンに応じたBGM。手帳(lesson)は勝利ジングルの続き→無音のまま切り替えない
   const sceneBgm: BgmId | null = state.gameover
     ? 'jgl_gameover'
     : item.k === 'title'
       ? 'title'
       : item.k === 'story'
-        ? 'daily'
+        ? item.id === 'ending'
+          ? 'ending' // 魔王戦後のエピローグはエンディング曲
+          : 'daily'
         : item.k === 'battle'
-          ? battleEnemy?.boss
-            ? 'btl_boss'
-            : 'btl_normal'
+          ? inMaouScript
+            ? 'btl_final'
+            : battleEnemy?.boss
+              ? 'btl_boss'
+              : 'btl_normal'
           : item.k === 'lesson'
             ? null
             : 'jgl_clear' // end / end2
