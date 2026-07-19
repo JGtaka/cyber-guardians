@@ -9,7 +9,7 @@
 
 `音楽・効果音:魔王魂(https://maou.audio/)`
 
-> [!注意] BGM・SEとも**全16点が魔王魂**(効果音ラボは未使用)。
+> [!注意] BGM・SEとも**全17点が魔王魂**(効果音ラボは未使用)。
 > 魔王魂は**クレジット表記が必須**(商用可・報告不要)。表記場所は自由。
 > フレーズの盗用、楽曲そのものの再配布・音楽配信サービスへの登録は禁止。
 
@@ -31,7 +31,7 @@
 - ゲーム・バトル https://maou.audio/category/game/game-battle/
 - ゲーム・ジングル https://maou.audio/category/game/game-jingle/
 
-## SE(public/se/ 8種)すべて魔王魂
+## SE(public/se/ 9種)すべて魔王魂
 
 | ファイル | トリガー | 素材ID | ダウンロード元URL | DL日 |
 |---|---|---|---|---|
@@ -43,6 +43,7 @@
 | se_weak.mp3 | WEAK POINT=弱点ヒット(画面フラッシュと同時。se_skillとは鳴らし分け) | maou_se_battle17 | https://maou.audio/sound/se/maou_se_battle17.mp3 | 2026-07-13 |
 | se_damage.mp3 | 被弾(画面シェイクと同時) | maou_se_battle12 | https://maou.audio/sound/se/maou_se_battle12.mp3 | 2026-07-13 |
 | se_continue.mp3 | ゲームオーバーからのリトライ | maou_se_onepoint16 | https://maou.audio/sound/se/maou_se_onepoint16.mp3 | 2026-07-13 |
+| se_powerup.mp3 | 奥義ミュートスの詠唱(パワーアップ系の溜め音) | maou_se_battle02 | https://maou.audio/sound/se/maou_se_battle02.mp3 | 2026-07-13 |
 
 一覧ページ(素材の再確認用):
 - 戦闘SE https://maou.audio/category/se/se-battle/

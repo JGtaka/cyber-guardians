@@ -33,6 +33,7 @@ const SE_DEFS: Record<SeId, { vol: number }> = {
   decide: { vol: 1 },
   message: { vol: 0.6 }, // 連打されるので小さめ(docs/sound.md)
   continue: { vol: 1 },
+  powerup: { vol: 1 },
 }
 
 const src = (dir: 'bgm' | 'se', file: string) =>

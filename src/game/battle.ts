@@ -431,7 +431,7 @@ export function buildMythosEvents(): BattleEvent[] {
       t: '{n}は 魔王の正体を 解析した——動きのくせ、攻撃の型、生まれた場所。',
       fx: null,
     },
-    { t: '名もなき脅威に、名前を刻む——', fx: null },
+    { t: '名もなき脅威に、名前を刻む——', fx: { se: 'powerup' } },
     { t: '▶ 奥義 ミュートス!!', fx: { weak: true, eFlash: true } },
     {
       t: 'セキュリティ手帳に『ゼロデイの魔王』が 記録された!',

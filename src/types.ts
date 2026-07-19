@@ -72,6 +72,7 @@ export type SeId =
   | 'decide' // 決定
   | 'message' // メッセージ送り
   | 'continue' // ゲームオーバーからのリトライ
+  | 'powerup' // 奥義ミュートスの詠唱(パワーアップ系)
 
 // BGMのID(public/bgm/<id>.mp3 に対応)
 export type BgmId =
