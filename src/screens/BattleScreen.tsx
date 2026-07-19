@@ -117,7 +117,9 @@ export function BattleScreen({
             className={cur.t.startsWith('クローンコード') ? 'text-patch' : ''}
           >
             {disp(cur.t)}
-            <span className="ml-2 inline-block animate-blink">▼</span>
+            <span className="ml-2 inline-block animate-blink">
+              ▼<span className="ml-1 text-[11px] text-sub">PUSH</span>
+            </span>
           </span>
         ) : state.gameover ? (
           <span className="text-patch">{disp(enemy.hint)}</span>
