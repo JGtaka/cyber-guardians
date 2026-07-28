@@ -4,14 +4,23 @@ import type { ZukanEntry } from '../types'
 // 撃破後のセキュリティ手帳(図鑑)画面。現実の攻撃と対策を解説する
 export function LessonScreen({
   zukan,
+  zukanCount,
+  zukanTotal,
   onNext,
 }: {
   zukan: ZukanEntry
+  zukanCount: number // 記録済み数(コンプ率の常時表示)
+  zukanTotal: number
   onNext: () => void
 }) {
   return (
     <div>
-      <p className="mb-2 text-[13px] text-sub">■ セキュリティ手帳</p>
+      <p className="mb-2 flex justify-between text-[13px] text-sub">
+        <span>■ セキュリティ手帳</span>
+        <span className="text-patch">
+          きろく {zukanCount}/{zukanTotal}
+        </span>
+      </p>
       <Window className="mb-3">
         <p className="mb-2 text-[15px] text-patch">{zukan.no}</p>
         <p className="mb-2 text-[14px] leading-[1.9]">

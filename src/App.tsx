@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from 'react'
-import { ENEMIES } from './data/enemies'
+import { countZukan, ENEMIES, ZUKAN_TOTAL } from './data/enemies'
 import { CHAPTER_STARTS, CLEARS, LAST_CHAPTER, STORIES } from './data/story'
 import {
   createInitialState,
@@ -143,6 +143,8 @@ export default function App() {
           <TitleScreen
             naming={state.naming}
             savedName={state.name}
+            zukanCount={countZukan(state.zukan)}
+            zukanTotal={ZUKAN_TOTAL}
             onOpenNaming={() => {
               playSe('decide')
               dispatch({ type: 'openNaming' })
@@ -212,6 +214,7 @@ export default function App() {
         {item.k === 'lesson' && (
           <ZukanLesson
             enemyId={item.e}
+            count={countZukan(state.zukan)}
             onNext={() => {
               playSe('decide')
               dispatch({ type: 'enterFlow', fi: state.fi + 1 })
@@ -248,15 +251,24 @@ export default function App() {
   )
 }
 
-// zukan を持つ敵のみ手帳画面を出す(魔王は zukan なし)
+// zukan を持つ敵のみ手帳画面を出す(slime2 はエントリ共通のため zukan なし)
 function ZukanLesson({
   enemyId,
+  count,
   onNext,
 }: {
   enemyId: EnemyId
+  count: number
   onNext: () => void
 }) {
   const zukan = ENEMIES[enemyId].zukan
   if (!zukan) return null
-  return <LessonScreen zukan={zukan} onNext={onNext} />
+  return (
+    <LessonScreen
+      zukan={zukan}
+      zukanCount={count}
+      zukanTotal={ZUKAN_TOTAL}
+      onNext={onNext}
+    />
+  )
 }
