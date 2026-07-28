@@ -41,11 +41,11 @@ function pushWinIfDefeated(
   remainingEHp: number,
 ): boolean {
   if (remainingEHp > 0) return false
-  // 撃破の瞬間にバトルBGMを止めて勝利ジングルへ(鳴り終わると無音)
+  // 撃破の瞬間にバトルBGMをフェードアウト。ジングルは次の手帳記録で鳴らす
   events.push({ t: `${enemy.name}を たおした!`, fx: { win: true } })
   events.push({
     t: 'セキュリティ手帳に きろくされた!',
-    fx: null,
+    fx: { record: true },
     then: 'flow',
   })
   return true
@@ -435,7 +435,7 @@ export function buildMythosEvents(): BattleEvent[] {
     { t: '▶ 奥義 ミュートス!!', fx: { weak: true, eFlash: true } },
     {
       t: 'セキュリティ手帳に『ゼロデイの魔王』が 記録された!',
-      fx: { eHp: -999, win: true },
+      fx: { eHp: -999, win: true, record: true },
     },
     {
       t: '未知は、既知の物語になった。——魔王は力を失い、消滅していく…!',

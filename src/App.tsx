@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from 'react'
-import { ENEMIES } from './data/enemies'
+import { countZukan, ENEMIES, ZUKAN_TOTAL } from './data/enemies'
 import { CHAPTER_STARTS, CLEARS, LAST_CHAPTER, STORIES } from './data/story'
 import {
   createInitialState,
@@ -44,7 +44,7 @@ export default function App() {
   const [state, dispatch] = useReducer(gameReducer, null, () =>
     createInitialState(loadSave()),
   )
-  const { shake, weakFx, eFlash } = useVisualFx(state.queue, state.qi)
+  const { shake, weakFx, eFlash, recordFx } = useVisualFx(state.queue, state.qi)
   useSoundFx(state.queue, state.qi)
   const item = flowItemAt(state.fi)
 
@@ -61,7 +61,7 @@ export default function App() {
   const battleEnemy = item.k === 'battle' ? ENEMIES[item.e] : null
   const inMaouScript = battleEnemy?.id === 'maou'
 
-  // シーンに応じたBGM。手帳(lesson)は勝利ジングルの続き→無音のまま切り替えない
+  // シーンに応じたBGM。手帳(lesson)は獲得ジングル(jgl_clear)の続き→無音のまま切り替えない
   const sceneBgm: BgmId | null = state.gameover
     ? 'jgl_gameover'
     : item.k === 'title'
@@ -127,11 +127,33 @@ export default function App() {
             WEAK POINT!!
           </div>
         )}
+        {recordFx && (
+          <div
+            className="absolute inset-0 z-[5] flex cursor-pointer flex-col items-center justify-center gap-5 bg-outer/60"
+            onClick={() => {
+              playSe('message')
+              dispatch({ type: 'advance' })
+            }}
+          >
+            <div className="relative origin-left animate-record rounded-[3px] border-4 border-white bg-screen px-8 py-5 text-center">
+              <p className="text-[13px] text-sub">▣ セキュリティ手帳</p>
+              <p className="mt-1.5 text-[18px] text-patch">ページが ふえた!</p>
+              <div className="absolute -top-4 -right-5 flex h-[64px] w-[64px] animate-stamp items-center justify-center rounded-full border-4 border-hp-enemy text-[13px] text-hp-enemy">
+                きろく!
+              </div>
+            </div>
+            <p className="inline-block animate-blink text-[14px]">
+              ▼<span className="ml-1 text-[11px] text-sub">PUSH</span>
+            </p>
+          </div>
+        )}
 
         {item.k === 'title' && (
           <TitleScreen
             naming={state.naming}
             savedName={state.name}
+            zukanCount={countZukan(state.zukan)}
+            zukanTotal={ZUKAN_TOTAL}
             onOpenNaming={() => {
               playSe('decide')
               dispatch({ type: 'openNaming' })
@@ -201,6 +223,7 @@ export default function App() {
         {item.k === 'lesson' && (
           <ZukanLesson
             enemyId={item.e}
+            count={countZukan(state.zukan)}
             onNext={() => {
               playSe('decide')
               dispatch({ type: 'enterFlow', fi: state.fi + 1 })
@@ -237,15 +260,24 @@ export default function App() {
   )
 }
 
-// zukan を持つ敵のみ手帳画面を出す(魔王は zukan なし)
+// zukan を持つ敵のみ手帳画面を出す(slime2 はエントリ共通のため zukan なし)
 function ZukanLesson({
   enemyId,
+  count,
   onNext,
 }: {
   enemyId: EnemyId
+  count: number
   onNext: () => void
 }) {
   const zukan = ENEMIES[enemyId].zukan
   if (!zukan) return null
-  return <LessonScreen zukan={zukan} onNext={onNext} />
+  return (
+    <LessonScreen
+      zukan={zukan}
+      zukanCount={count}
+      zukanTotal={ZUKAN_TOTAL}
+      onNext={onNext}
+    />
+  )
 }

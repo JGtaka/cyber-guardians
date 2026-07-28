@@ -50,6 +50,8 @@ export function TitleScreen({
   naming,
   savedName,
   continueChapter,
+  zukanCount,
+  zukanTotal,
   onOpenNaming,
   onConfirm,
   onContinue,
@@ -57,6 +59,8 @@ export function TitleScreen({
   naming: boolean
   savedName: string
   continueChapter: number // 「つづきから」で入る章
+  zukanCount: number // セキュリティ手帳の記録済み数(コンプ率の常時表示)
+  zukanTotal: number
   onOpenNaming: () => void
   onConfirm: (name: string) => void
   onContinue?: () => void // 章クリア済みセーブがあるときだけ渡される
@@ -76,11 +80,14 @@ export function TitleScreen({
           <Sprite id="fairy" />
         </div>
       </div>
-      <Window className="mb-[18px] text-left text-[14px] leading-[1.9]">
+      <Window className="mb-2.5 text-left text-[14px] leading-[1.9]">
         悪の攻撃には、必ず正しい「対策」がある。
         <br />
         スキルで敵の弱点を見抜いて倒そう!
       </Window>
+      <p className="mb-[18px] text-[13px] text-patch">
+        ▣ セキュリティ手帳 きろく {zukanCount}/{zukanTotal}
+      </p>
       <div className="flex flex-col items-center gap-2.5">
         <button className={bigBtnCls} onClick={onOpenNaming}>
           ▶ ぼうけんに でる

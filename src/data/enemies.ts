@@ -232,3 +232,10 @@ export const ENEMIES: Record<EnemyId, Enemy> = {
     },
   },
 }
+
+// 手帳(図鑑)エントリを持つ敵の総数(コンプ率の母数。slime2 はエントリ共通のため除外)
+export const ZUKAN_TOTAL = Object.values(ENEMIES).filter((e) => e.zukan).length
+
+// 解放済みIDのうち手帳エントリを持つものだけを数える
+export const countZukan = (ids: EnemyId[]) =>
+  ids.filter((id) => ENEMIES[id].zukan).length

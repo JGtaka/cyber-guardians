@@ -6,6 +6,7 @@ export function useVisualFx(queue: BattleEvent[], qi: number) {
   const [shake, setShake] = useState(false)
   const [weakFx, setWeakFx] = useState(false)
   const [eFlash, setEFlash] = useState(false)
+  const [recordFx, setRecordFx] = useState(false)
 
   useEffect(() => {
     const fx = qi >= 0 ? queue[qi]?.fx : null
@@ -23,6 +24,8 @@ export function useVisualFx(queue: BattleEvent[], qi: number) {
       setWeakFx(true)
       timers.push(window.setTimeout(() => setWeakFx(false), 650))
     }
+    // 手帳記録はタイマーで消さず、クリックで次のイベントへ進むまで出し続ける
+    if (fx.record) setRecordFx(true)
     return () => {
       timers.forEach((t) => clearTimeout(t))
       // タイマーが発火する前に次のイベントへ進んだ場合(高速タップ時)、
@@ -30,8 +33,9 @@ export function useVisualFx(queue: BattleEvent[], qi: number) {
       if (fx.eFlash) setEFlash(false)
       if (fx.shake) setShake(false)
       if (fx.weak) setWeakFx(false)
+      if (fx.record) setRecordFx(false)
     }
   }, [queue, qi])
 
-  return { shake, weakFx, eFlash }
+  return { shake, weakFx, eFlash, recordFx }
 }
