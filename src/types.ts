@@ -103,6 +103,7 @@ export interface Fx {
   weak?: boolean
   se?: SeId // このイベント表示と同時に鳴らす効果音(weak/shake があればそちら優先)
   win?: boolean // 勝利ジングルを開始する(バトルBGMをフェードアウト)
+  record?: boolean // 手帳記録演出(ページめくり+スタンプ+jgl_clear)
 }
 
 // イベントキュー消化後の遷移先

@@ -45,7 +45,7 @@ function pushWinIfDefeated(
   events.push({ t: `${enemy.name}を たおした!`, fx: { win: true } })
   events.push({
     t: 'セキュリティ手帳に きろくされた!',
-    fx: null,
+    fx: { record: true },
     then: 'flow',
   })
   return true

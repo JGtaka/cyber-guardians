@@ -44,7 +44,7 @@ export default function App() {
   const [state, dispatch] = useReducer(gameReducer, null, () =>
     createInitialState(loadSave()),
   )
-  const { shake, weakFx, eFlash } = useVisualFx(state.queue, state.qi)
+  const { shake, weakFx, eFlash, recordFx } = useVisualFx(state.queue, state.qi)
   useSoundFx(state.queue, state.qi)
   const item = flowItemAt(state.fi)
 
@@ -125,6 +125,17 @@ export default function App() {
         {weakFx && (
           <div className="absolute inset-0 z-[5] flex animate-weak items-center justify-center bg-weak text-[26px] text-screen">
             WEAK POINT!!
+          </div>
+        )}
+        {recordFx && (
+          <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
+            <div className="relative origin-left animate-record rounded-[3px] border-4 border-white bg-screen px-8 py-5 text-center">
+              <p className="text-[13px] text-sub">▣ セキュリティ手帳</p>
+              <p className="mt-1.5 text-[18px] text-patch">ページが ふえた!</p>
+              <div className="absolute -top-4 -right-5 flex h-[64px] w-[64px] animate-stamp items-center justify-center rounded-full border-4 border-hp-enemy text-[13px] text-hp-enemy">
+                きろく!
+              </div>
+            </div>
           </div>
         )}
 

@@ -19,6 +19,8 @@
   --animate-blink: cg-blink 1s infinite;
   --animate-weak: cg-weak 0.65s forwards;
   --animate-float: cg-float 2s infinite;
+  --animate-record: cg-record 1.1s forwards;
+  --animate-stamp: cg-stamp 0.25s 0.45s both;
 
   @keyframes cg-shake {
     0%, 100% { transform: translateX(0); }
@@ -38,5 +40,17 @@
   @keyframes cg-float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
+  }
+  /* 手帳のページめくり(左端を軸に開く→最後にフェードアウト) */
+  @keyframes cg-record {
+    0% { transform: perspective(400px) rotateY(-88deg); opacity: 0; }
+    30% { transform: perspective(400px) rotateY(0deg); opacity: 1; }
+    85% { transform: perspective(400px) rotateY(0deg); opacity: 1; }
+    100% { transform: perspective(400px) rotateY(0deg); opacity: 0; }
+  }
+  /* スタンプが上から押される(ページが開き切ってから遅延発火) */
+  @keyframes cg-stamp {
+    0% { transform: scale(2.4) rotate(-12deg); opacity: 0; }
+    100% { transform: scale(1) rotate(-12deg); opacity: 1; }
   }
 }

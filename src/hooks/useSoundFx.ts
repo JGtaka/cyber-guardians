@@ -16,6 +16,8 @@ export function useSoundFx(queue: BattleEvent[], qi: number) {
     if (fx.weak) playSe('weak') // WEAK POINT演出の画面フラッシュと同時に鳴らす
     else if (fx.shake) playSe('damage') // 被弾は画面シェイクと同時
     else if (fx.se) playSe(fx.se)
-    if (fx.win) playBgm('jgl_win')
+    // 手帳記録の獲得ジングル(直前の勝利ジングルからクロスフェードで切り替わる)
+    if (fx.record) playBgm('jgl_clear')
+    else if (fx.win) playBgm('jgl_win')
   }, [queue, qi])
 }
