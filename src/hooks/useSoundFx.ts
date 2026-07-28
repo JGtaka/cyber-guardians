@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
-import { playBgm, playSe } from '../game/sound'
+import { playBgm, playSe, stopBgm } from '../game/sound'
 import type { BattleEvent } from '../types'
 
-// 表示中イベントの fx に応じて効果音・勝利ジングルを鳴らす。
+// 表示中イベントの fx に応じて効果音・獲得ジングルを鳴らす。
 // useVisualFx と同じ依存で発火するので、フラッシュ・シェイクと音が同期する
 export function useSoundFx(queue: BattleEvent[], qi: number) {
   // StrictMode の二重実行や再レンダーで同じイベントの音が重ならないようにする
@@ -16,8 +16,9 @@ export function useSoundFx(queue: BattleEvent[], qi: number) {
     if (fx.weak) playSe('weak') // WEAK POINT演出の画面フラッシュと同時に鳴らす
     else if (fx.shake) playSe('damage') // 被弾は画面シェイクと同時
     else if (fx.se) playSe(fx.se)
-    // 手帳記録の獲得ジングル(直前の勝利ジングルからクロスフェードで切り替わる)
+    // ジングルは手帳記録(獲得)の1本のみ。撃破時はバトルBGMを止めて
+    // 一瞬の静寂を作り、次の「きろくされた!」で jgl_clear を際立たせる
     if (fx.record) playBgm('jgl_clear')
-    else if (fx.win) playBgm('jgl_win')
+    else if (fx.win) stopBgm()
   }, [queue, qi])
 }

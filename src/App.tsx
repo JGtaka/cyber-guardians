@@ -61,7 +61,7 @@ export default function App() {
   const battleEnemy = item.k === 'battle' ? ENEMIES[item.e] : null
   const inMaouScript = battleEnemy?.id === 'maou'
 
-  // シーンに応じたBGM。手帳(lesson)は勝利ジングルの続き→無音のまま切り替えない
+  // シーンに応じたBGM。手帳(lesson)は獲得ジングル(jgl_clear)の続き→無音のまま切り替えない
   const sceneBgm: BgmId | null = state.gameover
     ? 'jgl_gameover'
     : item.k === 'title'
