@@ -249,6 +249,9 @@ export default function App() {
         )}
         {item.k === 'end2' && (
           <FinaleScreen
+            name={state.name}
+            zukanCount={countZukan(state.zukan)}
+            zukanTotal={ZUKAN_TOTAL}
             onTitle={() => {
               playSe('decide')
               dispatch({ type: 'toTitle' })

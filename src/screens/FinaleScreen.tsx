@@ -1,7 +1,18 @@
+import { Certificate } from '../components/Certificate'
 import { Window } from '../components/Window'
 
-// 最終決戦クリア後の「完」画面
-export function FinaleScreen({ onTitle }: { onTitle: () => void }) {
+// 最終決戦クリア後の「完」画面。クリア特典として修了証(免許証)を発行する
+export function FinaleScreen({
+  name,
+  zukanCount,
+  zukanTotal,
+  onTitle,
+}: {
+  name: string
+  zukanCount: number
+  zukanTotal: number
+  onTitle: () => void
+}) {
   return (
     <div className="py-3.5 text-center">
       <h2 className="mb-4 text-[22px] font-normal text-weak">★ 完 ★</h2>
@@ -14,6 +25,13 @@ export function FinaleScreen({ onTitle }: { onTitle: () => void }) {
         <br />
         ・記録して共有し、未知を既知にする(ミュートス)
       </Window>
+      <div className="mb-3.5">
+        <Certificate
+          name={name}
+          zukanCount={zukanCount}
+          zukanTotal={zukanTotal}
+        />
+      </div>
       <Window className="mb-3.5 text-left text-[13px] leading-[1.9] text-sub">
         ネット王国に、平和が戻りました。
         <br />
