@@ -24,10 +24,8 @@ export function useVisualFx(queue: BattleEvent[], qi: number) {
       setWeakFx(true)
       timers.push(window.setTimeout(() => setWeakFx(false), 650))
     }
-    if (fx.record) {
-      setRecordFx(true)
-      timers.push(window.setTimeout(() => setRecordFx(false), 1150))
-    }
+    // 手帳記録はタイマーで消さず、クリックで次のイベントへ進むまで出し続ける
+    if (fx.record) setRecordFx(true)
     return () => {
       timers.forEach((t) => clearTimeout(t))
       // タイマーが発火する前に次のイベントへ進んだ場合(高速タップ時)、

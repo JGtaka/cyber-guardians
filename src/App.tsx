@@ -128,7 +128,13 @@ export default function App() {
           </div>
         )}
         {recordFx && (
-          <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
+          <div
+            className="absolute inset-0 z-[5] flex cursor-pointer flex-col items-center justify-center gap-5 bg-outer/60"
+            onClick={() => {
+              playSe('message')
+              dispatch({ type: 'advance' })
+            }}
+          >
             <div className="relative origin-left animate-record rounded-[3px] border-4 border-white bg-screen px-8 py-5 text-center">
               <p className="text-[13px] text-sub">▣ セキュリティ手帳</p>
               <p className="mt-1.5 text-[18px] text-patch">ページが ふえた!</p>
@@ -136,6 +142,9 @@ export default function App() {
                 きろく!
               </div>
             </div>
+            <p className="inline-block animate-blink text-[14px]">
+              ▼<span className="ml-1 text-[11px] text-sub">PUSH</span>
+            </p>
           </div>
         )}
 
