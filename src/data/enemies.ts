@@ -1,4 +1,4 @@
-import type { Enemy, EnemyId } from '../types'
+import type { Enemy, EnemyId, ZukanEntry } from '../types'
 
 // 敵キャラクター(= 実在のサイバー攻撃)。weak が正しい対策スキル。
 // テキスト中の {n} はプレイヤー名に差し込まれる
@@ -233,8 +233,13 @@ export const ENEMIES: Record<EnemyId, Enemy> = {
   },
 }
 
-// 手帳(図鑑)エントリを持つ敵の総数(コンプ率の母数。slime2 はエントリ共通のため除外)
-export const ZUKAN_TOTAL = Object.values(ENEMIES).filter((e) => e.zukan).length
+// 手帳(図鑑)エントリを持つ敵の一覧(定義順 = No.順。slime2 はエントリ共通のため除外)
+export const ZUKAN_ENEMIES = Object.values(ENEMIES).filter(
+  (e): e is Enemy & { zukan: ZukanEntry } => e.zukan !== null,
+)
+
+// 手帳(図鑑)エントリを持つ敵の総数(コンプ率の母数)
+export const ZUKAN_TOTAL = ZUKAN_ENEMIES.length
 
 // 解放済みIDのうち手帳エントリを持つものだけを数える
 export const countZukan = (ids: EnemyId[]) =>

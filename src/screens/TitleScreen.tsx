@@ -55,6 +55,7 @@ export function TitleScreen({
   onOpenNaming,
   onConfirm,
   onContinue,
+  onOpenZukan,
 }: {
   naming: boolean
   savedName: string
@@ -64,6 +65,7 @@ export function TitleScreen({
   onOpenNaming: () => void
   onConfirm: (name: string) => void
   onContinue?: () => void // 章クリア済みセーブがあるときだけ渡される
+  onOpenZukan: () => void // セキュリティ手帳の閲覧画面を開く
 }) {
   return (
     <div className="py-[26px] text-center">
@@ -85,9 +87,13 @@ export function TitleScreen({
         <br />
         スキルで敵の弱点を見抜いて倒そう!
       </Window>
-      <p className="mb-[18px] text-[13px] text-patch">
-        ▣ セキュリティ手帳 きろく {zukanCount}/{zukanTotal}
-      </p>
+      {/* コンプ率の常時表示を兼ねた、手帳閲覧画面への入口 */}
+      <button
+        className="mb-[18px] cursor-pointer rounded-[3px] border-2 border-patch px-4 py-1.5 text-[13px] text-patch"
+        onClick={onOpenZukan}
+      >
+        ▣ セキュリティ手帳 きろく {zukanCount}/{zukanTotal} ▶
+      </button>
       <div className="flex flex-col items-center gap-2.5">
         <button className={bigBtnCls} onClick={onOpenNaming}>
           ▶ ぼうけんに でる
