@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { countZukan, ENEMIES, ZUKAN_TOTAL } from './data/enemies'
 import { CHAPTER_STARTS, CLEARS, LAST_CHAPTER, STORIES } from './data/story'
 import {
@@ -24,6 +24,7 @@ import { TitleScreen } from './screens/TitleScreen'
 import { StoryScreen } from './screens/StoryScreen'
 import { BattleScreen } from './screens/BattleScreen'
 import { LessonScreen } from './screens/LessonScreen'
+import { ZukanScreen } from './screens/ZukanScreen'
 import { ClearScreen } from './screens/ClearScreen'
 import { FinaleScreen } from './screens/FinaleScreen'
 import type { BgmId, EnemyId, Skill } from './types'
@@ -47,6 +48,8 @@ export default function App() {
   const { shake, weakFx, eFlash, recordFx } = useVisualFx(state.queue, state.qi)
   useSoundFx(state.queue, state.qi)
   const item = flowItemAt(state.fi)
+  // セキュリティ手帳の閲覧画面(タイトルから開く。進行に影響しない表示専用の状態)
+  const [zukanOpen, setZukanOpen] = useState(false)
 
   // テキスト中の {n} をプレイヤー名に差し込む(Reactの標準機構でエスケープされる)
   const disp = (t: string) => t.replaceAll('{n}', state.name)
@@ -148,7 +151,18 @@ export default function App() {
           </div>
         )}
 
-        {item.k === 'title' && (
+        {item.k === 'title' && zukanOpen && (
+          <ZukanScreen
+            zukanIds={state.zukan}
+            zukanCount={countZukan(state.zukan)}
+            zukanTotal={ZUKAN_TOTAL}
+            onClose={() => {
+              playSe('cursor')
+              setZukanOpen(false)
+            }}
+          />
+        )}
+        {item.k === 'title' && !zukanOpen && (
           <TitleScreen
             naming={state.naming}
             savedName={state.name}
@@ -171,6 +185,10 @@ export default function App() {
                   }
                 : undefined
             }
+            onOpenZukan={() => {
+              playSe('decide')
+              setZukanOpen(true)
+            }}
           />
         )}
         {item.k === 'story' && (
