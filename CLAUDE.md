@@ -44,7 +44,8 @@
 - ゲームデータは src/data/ に分離(enemies / skills / story / zukan)。データ駆動を厳守
 - セーブ:**localStorage のみ**(キー "cyber_guardians_save"。名前・章・図鑑解放を含む)。
   DB・サーバー・Supabase は使わない
-- デプロイ:Vercel。main = 本番 / dev = 作業。main へ直接 push しない
+- デプロイ:Vercel。main = 本番。作業は feature/◯◯ ブランチを切り、PRで main へマージする。
+  main へ直接 push しない(旧 dev ブランチ運用は廃止)
 - 開発環境:WSL2内リポジトリ+Docker(node:22-slim)。
   vite.config.ts に server: { host: true, watch: { usePolling: true } }
 
