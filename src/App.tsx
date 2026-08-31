@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useState } from 'react'
+import { BAD_ENDS, badEndIdOf } from './data/badend'
 import { countZukan, ENEMIES, ZUKAN_TOTAL } from './data/enemies'
 import { CHAPTER_STARTS, CLEARS, LAST_CHAPTER, STORIES } from './data/story'
 import {
@@ -22,6 +23,7 @@ import { useSoundFx } from './hooks/useSoundFx'
 import { isMuted, playBgm, playSe } from './game/sound'
 import { TitleScreen } from './screens/TitleScreen'
 import { StoryScreen } from './screens/StoryScreen'
+import { BadEndScreen } from './screens/BadEndScreen'
 import { BattleScreen } from './screens/BattleScreen'
 import { LessonScreen } from './screens/LessonScreen'
 import { ZukanScreen } from './screens/ZukanScreen'
@@ -37,6 +39,7 @@ function persist(state: GameState) {
     chapter: state.chapter,
     zukan: state.zukan,
     seenStories: state.seenStories,
+    seenBadEnds: state.seenBadEnds,
     muted: isMuted(),
   })
 }
@@ -58,7 +61,14 @@ export default function App() {
   useEffect(() => {
     if (state.fi >= 0) persist(state)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.fi, state.name, state.chapter, state.zukan, state.seenStories])
+  }, [
+    state.fi,
+    state.name,
+    state.chapter,
+    state.zukan,
+    state.seenStories,
+    state.seenBadEnds,
+  ])
 
   // バトルコマンド: 現在ステータスのスナップショットからイベント列を生成する
   const battleEnemy = item.k === 'battle' ? ENEMIES[item.e] : null
@@ -207,7 +217,21 @@ export default function App() {
             }}
           />
         )}
-        {item.k === 'battle' && battleEnemy && (
+        {item.k === 'battle' && battleEnemy && state.gameover && (
+          <BadEndScreen
+            // 敵が替わったら行送りを最初からやり直す
+            key={battleEnemy.id}
+            enemy={battleEnemy}
+            badEnd={BAD_ENDS[battleEnemy.id]}
+            seen={state.seenBadEnds.includes(badEndIdOf(battleEnemy.id))}
+            disp={disp}
+            onRetry={() => {
+              playSe('continue')
+              dispatch({ type: 'retry' })
+            }}
+          />
+        )}
+        {item.k === 'battle' && battleEnemy && !state.gameover && (
           <BattleScreen
             state={state}
             enemy={battleEnemy}
@@ -231,10 +255,6 @@ export default function App() {
             onMythos={() => {
               playSe('decide')
               dispatch({ type: 'startQueue', events: buildMythosEvents() })
-            }}
-            onRetry={() => {
-              playSe('continue')
-              dispatch({ type: 'retry' })
             }}
           />
         )}

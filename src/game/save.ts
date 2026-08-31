@@ -4,7 +4,7 @@ import { STORIES } from '../data/story'
 import type { EnemyId, StoryId } from '../types'
 
 // localStorage セーブ(CLAUDE.md: 名前・章・図鑑解放を含む)。
-// seenStories は会話パートの既読スキップ用
+// seenStories / seenBadEnds は既読スキップ用
 
 export interface SaveData {
   v: 1
@@ -12,6 +12,7 @@ export interface SaveData {
   chapter: number // クリア済みの章(0 = 未クリア)
   zukan: EnemyId[] // 図鑑(セキュリティ手帳)の解放済み敵
   seenStories: StoryId[]
+  seenBadEnds: EnemyId[] // 読んだことのあるBAD ENDING(敵ID)
   muted: boolean // ミュート状態(docs/sound.md: セーブに含める)
 }
 
@@ -21,6 +22,7 @@ export const emptySave: SaveData = {
   chapter: 0,
   zukan: [],
   seenStories: [],
+  seenBadEnds: [],
   muted: false,
 }
 
@@ -49,6 +51,9 @@ export function loadSave(): SaveData | null {
       zukan: Array.isArray(o.zukan) ? o.zukan.filter(isEnemyId) : [],
       seenStories: Array.isArray(o.seenStories)
         ? o.seenStories.filter(isStoryId)
+        : [],
+      seenBadEnds: Array.isArray(o.seenBadEnds)
+        ? o.seenBadEnds.filter(isEnemyId)
         : [],
       muted: o.muted === true,
     }

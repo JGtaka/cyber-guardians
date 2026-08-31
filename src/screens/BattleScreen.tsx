@@ -21,10 +21,9 @@ interface Props {
   onOpenMenu: (menu: Menu) => void
   onPatch: () => void // 魔王戦: 緊急パッチ適用
   onMythos: () => void // 魔王戦: 奥義ミュートス
-  onRetry: () => void
 }
 
-// バトル画面(ゲームオーバー時のリトライ表示もここで扱う)
+// バトル画面(敗北後のBAD ENDINGはBadEndScreenが扱う)
 export function BattleScreen({
   state,
   enemy,
@@ -37,7 +36,6 @@ export function BattleScreen({
   onOpenMenu,
   onPatch,
   onMythos,
-  onRetry,
 }: Props) {
   const inMsg = state.qi >= 0 && state.qi < state.queue.length
   const cur = inMsg ? state.queue[state.qi] : null
@@ -121,21 +119,13 @@ export function BattleScreen({
               ▼<span className="ml-1 text-[11px] text-sub">PUSH</span>
             </span>
           </span>
-        ) : state.gameover ? (
-          <span className="text-patch">{disp(enemy.hint)}</span>
         ) : (
           <span className="text-sub">コマンドを えらんでください</span>
         )}
       </Window>
 
       {/* コマンドウィンドウ */}
-      {state.gameover ? (
-        <Window>
-          <button className={`${btnCls} w-full`} onClick={onRetry}>
-            ▶ もういちど いどむ(負けて覚えるのも対策です!)
-          </button>
-        </Window>
-      ) : !inMsg && isMaou && state.mPhase === 1 ? (
+      {!inMsg && isMaou && state.mPhase === 1 ? (
         <Window>
           <button
             className={`${btnCls} w-full text-[17px] text-patch`}
