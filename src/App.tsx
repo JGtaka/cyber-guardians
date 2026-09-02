@@ -1,7 +1,14 @@
 import { useEffect, useReducer, useState } from 'react'
 import { BAD_ENDS, badEndIdOf } from './data/badend'
 import { countZukan, ENEMIES, ZUKAN_TOTAL } from './data/enemies'
-import { CHAPTER_STARTS, CLEARS, LAST_CHAPTER, STORIES } from './data/story'
+import {
+  CHAPTER_STARTS,
+  CLEARS,
+  LAST_CHAPTER,
+  STORIES,
+  chapterLabelAt,
+  resolveResumeFi,
+} from './data/story'
 import {
   createInitialState,
   flowItemAt,
@@ -31,18 +38,22 @@ import { ClearScreen } from './screens/ClearScreen'
 import { FinaleScreen } from './screens/FinaleScreen'
 import type { BgmId, EnemyId, Skill } from './types'
 
-// 進行のうちセーブ対象(名前・章・図鑑解放・既読・ミュート)を書き出す
+// 進行のうちセーブ対象(名前・章・中断地点・図鑑解放・既読・ミュート)を書き出す
 function persist(state: GameState) {
   writeSave({
     v: 1,
     name: state.name,
     chapter: state.chapter,
+    fi: state.fi,
     zukan: state.zukan,
     seenStories: state.seenStories,
     seenBadEnds: state.seenBadEnds,
     muted: isMuted(),
   })
 }
+
+const confirmBtnCls =
+  'cursor-pointer rounded-[3px] border-2 border-white px-3.5 py-1.5 text-[13px]'
 
 export default function App() {
   const [state, dispatch] = useReducer(gameReducer, null, () =>
@@ -53,6 +64,8 @@ export default function App() {
   const item = flowItemAt(state.fi)
   // セキュリティ手帳の閲覧画面(タイトルから開く。進行に影響しない表示専用の状態)
   const [zukanOpen, setZukanOpen] = useState(false)
+  // 中断確認ダイアログ(会話・バトル中の「ちゅうだん」ボタンから開く)
+  const [suspendConfirm, setSuspendConfirm] = useState(false)
 
   // テキスト中の {n} をプレイヤー名に差し込む(Reactの標準機構でエスケープされる)
   const disp = (t: string) => t.replaceAll('{n}', state.name)
@@ -96,9 +109,14 @@ export default function App() {
     if (sceneBgm) playBgm(sceneBgm)
   }, [sceneBgm])
 
-  // タイトルの「つづきから」で入る章(クリア済みの次の章。上限は実装済みの最新章)
-  const continueChapter = Math.min(state.chapter + 1, LAST_CHAPTER)
-  const continueFi = CHAPTER_STARTS[continueChapter]
+  // タイトルの「つづきから」: 中断地点があればそこへ、
+  // なければ従来どおりクリア済みの次の章の頭へ(上限は実装済みの最新章)
+  const resumeFi = resolveResumeFi(state.resumeFi)
+  const fallbackChapter = Math.min(state.chapter + 1, LAST_CHAPTER)
+  const continueFi = resumeFi >= 0 ? resumeFi : CHAPTER_STARTS[fallbackChapter]
+  const continueLabel =
+    resumeFi >= 0 ? chapterLabelAt(resumeFi) : `第${fallbackChapter}章`
+  const canContinue = resumeFi >= 0 || state.chapter >= 1
 
   const handleCommand = (kind: 'attack' | 'guard' | 'skill', skill?: Skill) => {
     if (!battleEnemy) return
@@ -186,9 +204,9 @@ export default function App() {
               playSe('decide')
               dispatch({ type: 'confirmName', name })
             }}
-            continueChapter={continueChapter}
+            continueLabel={continueLabel}
             onContinue={
-              state.chapter >= 1
+              canContinue
                 ? () => {
                     playSe('decide')
                     dispatch({ type: 'continueGame', fi: continueFi })
@@ -295,6 +313,56 @@ export default function App() {
               dispatch({ type: 'toTitle' })
             }}
           />
+        )}
+
+        {/* 会話・バトル中の中断ボタン(進行は自動セーブ済み。issue #16) */}
+        {(item.k === 'story' || (item.k === 'battle' && !state.gameover)) && (
+          <div className="mt-3 text-right">
+            <button
+              className="cursor-pointer text-[11px] text-sub underline"
+              onClick={() => {
+                playSe('cursor')
+                setSuspendConfirm(true)
+              }}
+            >
+              ▌▌ ちゅうだん
+            </button>
+          </div>
+        )}
+        {suspendConfirm && (
+          <div className="absolute inset-0 z-[6] flex items-center justify-center bg-outer/60 px-5">
+            <div className="w-full rounded-[3px] border-4 border-white bg-screen px-6 py-5 text-center">
+              <p className="text-[15px] leading-[1.8]">
+                ちゅうだんして タイトルに もどりますか?
+              </p>
+              <p className="mt-2 text-[12px] leading-[1.8] text-patch">
+                すすみは じどうで きろくされています。
+                {item.k === 'battle' &&
+                  'バトルは つぎのとき さいしょから になります。'}
+              </p>
+              <div className="mt-4 flex flex-wrap justify-center gap-3">
+                <button
+                  className={confirmBtnCls}
+                  onClick={() => {
+                    playSe('decide')
+                    setSuspendConfirm(false)
+                    dispatch({ type: 'toTitle' })
+                  }}
+                >
+                  ▶ タイトルへ もどる
+                </button>
+                <button
+                  className={confirmBtnCls}
+                  onClick={() => {
+                    playSe('cursor')
+                    setSuspendConfirm(false)
+                  }}
+                >
+                  ▶ ぼうけんを つづける
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

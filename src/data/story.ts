@@ -241,6 +241,29 @@ export const CHAPTER_STARTS: Record<number, number> = {
 // 実装済みの最新章(「つづきから」の上限)
 export const LAST_CHAPTER = 5
 
+// 中断地点(セーブされたFLOW位置)から実際に再開する位置を解決する。
+// クリア画面で中断していた場合は次の位置(=次章の頭)、エンディングまで
+// 見終わっていた場合は中断地点なし(-1)として章単位の再開に任せる
+export function resolveResumeFi(fi: number): number {
+  if (!Number.isInteger(fi) || fi < 0 || fi >= FLOW.length) return -1
+  const it = FLOW[fi]
+  if (it.k === 'end2') return -1
+  if (it.k === 'end') return fi + 1 < FLOW.length ? fi + 1 : -1
+  return fi
+}
+
+const FINAL_START = chapterStart('final_pre')
+
+// タイトルの「つづきから(◯◯)」表示用。FLOW位置が属する章のラベル
+export function chapterLabelAt(fi: number): string {
+  if (fi >= FINAL_START) return '最終決戦'
+  let ch = 1
+  for (let c = 2; c <= LAST_CHAPTER; c++) {
+    if (fi >= CHAPTER_STARTS[c]) ch = c
+  }
+  return `第${ch}章`
+}
+
 // 章クリア画面の内容(learned = 今日おぼえた対策 / hasNext = 次へ進めるか /
 // nextLabel = 進むボタンの文言。省略時は「第N章へ すすむ」)
 export const CLEARS: Record<

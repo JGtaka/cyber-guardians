@@ -1,6 +1,6 @@
 import { DEFAULT_NAME, NAME_MAX_LEN, SAVE_KEY } from '../data/constants'
 import { ENEMIES } from '../data/enemies'
-import { STORIES } from '../data/story'
+import { FLOW, STORIES } from '../data/story'
 import type { EnemyId, StoryId } from '../types'
 
 // localStorage セーブ(CLAUDE.md: 名前・章・図鑑解放を含む)。
@@ -10,6 +10,7 @@ export interface SaveData {
   v: 1
   name: string
   chapter: number // クリア済みの章(0 = 未クリア)
+  fi: number // 中断地点(FLOWの位置。-1 = 中断地点なし)
   zukan: EnemyId[] // 図鑑(セキュリティ手帳)の解放済み敵
   seenStories: StoryId[]
   seenBadEnds: EnemyId[] // 読んだことのあるBAD ENDING(敵ID)
@@ -20,6 +21,7 @@ export const emptySave: SaveData = {
   v: 1,
   name: DEFAULT_NAME,
   chapter: 0,
+  fi: -1,
   zukan: [],
   seenStories: [],
   seenBadEnds: [],
@@ -48,6 +50,14 @@ export function loadSave(): SaveData | null {
       v: 1,
       name: typeof o.name === 'string' ? sanitizeName(o.name) : DEFAULT_NAME,
       chapter: typeof o.chapter === 'number' ? o.chapter : 0,
+      // 古い形式(fiなし)や範囲外の値は「中断地点なし」に落とす
+      fi:
+        typeof o.fi === 'number' &&
+        Number.isInteger(o.fi) &&
+        o.fi >= 0 &&
+        o.fi < FLOW.length
+          ? o.fi
+          : -1,
       zukan: Array.isArray(o.zukan) ? o.zukan.filter(isEnemyId) : [],
       seenStories: Array.isArray(o.seenStories)
         ? o.seenStories.filter(isStoryId)

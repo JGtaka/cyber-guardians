@@ -38,6 +38,7 @@ export interface GameState {
   qi: number // 表示中イベントの位置(-1 = メッセージ非表示)
   gameover: boolean
   // セーブ対象の進行記録
+  resumeFi: number // 中断地点(タイトルの「つづきから」の再開位置。-1 = なし)
   chapter: number // クリア済みの章
   zukan: EnemyId[] // 図鑑の解放済み敵
   seenStories: StoryId[] // 会話の既読(スキップ解放用)
@@ -81,6 +82,7 @@ export function createInitialState(save: SaveData | null): GameState {
     queue: [],
     qi: -1,
     gameover: false,
+    resumeFi: s.fi,
     chapter: s.chapter,
     zukan: s.zukan,
     seenStories: s.seenStories,
@@ -231,7 +233,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'continueGame':
       return enterFlow({ ...state, pHp: MAX_HP, pMp: MAX_MP }, action.fi)
     case 'toTitle':
-      return { ...state, fi: -1, si: 0, queue: [], qi: -1, gameover: false }
+      // 中断地点を控えてからタイトルへ(「つづきから」の再開先になる)
+      return {
+        ...state,
+        resumeFi: state.fi >= 0 ? state.fi : state.resumeFi,
+        fi: -1,
+        si: 0,
+        queue: [],
+        qi: -1,
+        gameover: false,
+      }
     case 'retry': {
       const item = flowItemAt(state.fi)
       if (item.k !== 'battle') return state
