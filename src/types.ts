@@ -43,6 +43,16 @@ export interface ZukanEntry {
   link: string
 }
 
+// 敗北時のBAD ENDING(= その脅威に対策しなかった王国の末路。issue #24)
+export interface BadEnd {
+  title: string // 末路の見出し(例:「氷づけの王国」)
+  story: string[] // 王国の末路(2〜3行。1行ずつ送って表示)
+  genjitsu: string // 現実の事例(属性表記でフィクション化)
+  source: string
+  link: string
+  lesson: string // 前向きな締め(クローンコードの台詞)
+}
+
 export interface Enemy {
   id: EnemyId
   name: string

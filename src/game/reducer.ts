@@ -1,3 +1,4 @@
+import { badEndIdOf } from '../data/badend'
 import { ENEMIES } from '../data/enemies'
 import { MAX_HP, MAX_MP } from '../data/constants'
 import { FLOW, STORIES } from '../data/story'
@@ -40,6 +41,7 @@ export interface GameState {
   chapter: number // クリア済みの章
   zukan: EnemyId[] // 図鑑の解放済み敵
   seenStories: StoryId[] // 会話の既読(スキップ解放用)
+  seenBadEnds: EnemyId[] // BAD ENDINGの既読(スキップ解放用)
 }
 
 export type GameAction =
@@ -82,6 +84,7 @@ export function createInitialState(save: SaveData | null): GameState {
     chapter: s.chapter,
     zukan: s.zukan,
     seenStories: s.seenStories,
+    seenBadEnds: s.seenBadEnds,
   }
 }
 
@@ -233,9 +236,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const item = flowItemAt(state.fi)
       if (item.k !== 'battle') return state
       const enemy = ENEMIES[item.e]
+      // リトライ=BAD ENDINGを読み終えた印。次回の敗北からスキップできる
+      const beId = badEndIdOf(item.e)
       return stepTo(
         {
           ...state,
+          seenBadEnds: state.seenBadEnds.includes(beId)
+            ? state.seenBadEnds
+            : [...state.seenBadEnds, beId],
           eHp: enemy.hp,
           pHp: MAX_HP,
           pMp: MAX_MP,
