@@ -49,7 +49,7 @@ function NamingDialog({
 export function TitleScreen({
   naming,
   savedName,
-  continueChapter,
+  continueLabel,
   zukanCount,
   zukanTotal,
   onOpenNaming,
@@ -59,12 +59,12 @@ export function TitleScreen({
 }: {
   naming: boolean
   savedName: string
-  continueChapter: number // 「つづきから」で入る章
+  continueLabel: string // 「つづきから」の再開先表示(「第3章」「最終決戦」等)
   zukanCount: number // セキュリティ手帳の記録済み数(コンプ率の常時表示)
   zukanTotal: number
   onOpenNaming: () => void
   onConfirm: (name: string) => void
-  onContinue?: () => void // 章クリア済みセーブがあるときだけ渡される
+  onContinue?: () => void // 再開できるセーブ(章クリア or 中断地点)があるときだけ渡される
   onOpenZukan: () => void // セキュリティ手帳の閲覧画面を開く
 }) {
   return (
@@ -100,7 +100,7 @@ export function TitleScreen({
         </button>
         {onContinue && (
           <button className={bigBtnCls} onClick={onContinue}>
-            ▶ つづきから(第{continueChapter}章)
+            ▶ つづきから({continueLabel})
           </button>
         )}
       </div>
