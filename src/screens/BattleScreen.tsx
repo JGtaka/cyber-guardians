@@ -2,7 +2,7 @@ import { Bar } from '../components/Bar'
 import { MuteButton } from '../components/MuteButton'
 import { Sprite } from '../components/Sprite'
 import { Window } from '../components/Window'
-import { SKILLS } from '../data/skills'
+import { LURE_SKILL, SKILLS } from '../data/skills'
 import { MAX_HP, MAX_MP } from '../data/constants'
 import type { GameState } from '../game/reducer'
 import type { Enemy, Menu, Skill } from '../types'
@@ -18,6 +18,7 @@ interface Props {
   onAttack: () => void
   onGuard: () => void
   onSkill: (skill: Skill) => void
+  onLure: () => void // アングラー戦: ニセスキルを選んだ
   onOpenMenu: (menu: Menu) => void
   onPatch: () => void // 魔王戦: 緊急パッチ適用
   onMythos: () => void // 魔王戦: 奥義ミュートス
@@ -33,6 +34,7 @@ export function BattleScreen({
   onAttack,
   onGuard,
   onSkill,
+  onLure,
   onOpenMenu,
   onPatch,
   onMythos,
@@ -102,6 +104,11 @@ export function BattleScreen({
           ◆ まどわしの毒(のこり{state.psnTurns}ターン・毎ターン4ダメージ)
         </p>
       )}
+      {state.lure && (
+        <p className="mb-2 text-[12px] text-hp-enemy">
+          ◆ あやしいお知らせを 受信中(スキル欄に 注意)
+        </p>
+      )}
 
       {/* メッセージウィンドウ */}
       <Window
@@ -162,7 +169,7 @@ export function BattleScreen({
         <Window>
           {SKILLS.map((sk) => {
             const isSealed = state.sealed === sk.id
-            return (
+            const btn = (
               <button
                 key={sk.id}
                 className={`${btnCls} flex w-full justify-between ${
@@ -179,6 +186,21 @@ export function BattleScreen({
                 <span className="text-[13px] text-mp">MP {sk.mp}</span>
               </button>
             )
+            if (!state.lure || sk.id !== LURE_SKILL.mimics) return btn
+            // ニセスキルは本物の真上に、本物と同じ見た目で並べる(見分けるのは名前の文字だけ)
+            return [
+              <button
+                key="lure"
+                className={`${btnCls} flex w-full justify-between ${
+                  state.pMp < LURE_SKILL.mp ? 'text-disabled' : ''
+                }`}
+                onClick={onLure}
+              >
+                <span>▶ {LURE_SKILL.name}</span>
+                <span className="text-[13px] text-mp">MP {LURE_SKILL.mp}</span>
+              </button>,
+              btn,
+            ]
           })}
           <button
             className={`${btnCls} text-sub`}

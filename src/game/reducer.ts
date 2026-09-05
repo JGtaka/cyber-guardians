@@ -31,6 +31,7 @@ export interface GameState {
   eAtk: number // 敵の攻撃力ボーナス(ゴーレムの毎ターン上昇ギミック)
   psnTurns: number // まどわしの毒の残りターン(ウィッチのギミック)
   sealed: SkillId | null // 暗号化封印中のスキル(デーモンのギミック)
+  lure: boolean // スキル欄にニセスキルが混ざっている(アングラーのギミック)
   mPhase: number // 魔王戦の段階: 0=無敵 1=クローン展開後 2=弱点発生
   mActs: number // 魔王戦・無敵段階での行動回数
   menu: Menu
@@ -76,6 +77,7 @@ export function createInitialState(save: SaveData | null): GameState {
     eAtk: 0,
     psnTurns: 0,
     sealed: null,
+    lure: false,
     mPhase: 0,
     mActs: 0,
     menu: 'main',
@@ -105,6 +107,7 @@ function applyFx(s: GameState, fx?: Fx | null): GameState {
     psnTurns: fx.psn ?? s.psnTurns,
     // seal は null で「解除」を表すため、undefined(変更なし)とは区別する
     sealed: fx.seal !== undefined ? fx.seal : s.sealed,
+    lure: fx.lure ?? s.lure,
     mPhase: fx.mPhase ?? s.mPhase,
     mActs: fx.mActs ?? s.mActs,
   }
@@ -139,6 +142,7 @@ function enterFlow(s: GameState, fi: number): GameState {
       eAtk: 0,
       psnTurns: 0,
       sealed: null,
+      lure: false,
       menu: 'main',
     }
     if (item.e === 'maou') {
@@ -262,6 +266,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           eAtk: 0,
           psnTurns: 0,
           sealed: null,
+          lure: false,
           mPhase: 0,
           mActs: 0,
           gameover: false,

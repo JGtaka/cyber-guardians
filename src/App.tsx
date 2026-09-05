@@ -19,6 +19,7 @@ import { loadSave, writeSave } from './game/save'
 import {
   buildAttackEvents,
   buildGuardEvents,
+  buildLureEvents,
   buildMaouActEvents,
   buildMythosEvents,
   buildPatchEvents,
@@ -118,32 +119,43 @@ export default function App() {
     resumeFi >= 0 ? chapterLabelAt(resumeFi) : `第${fallbackChapter}章`
   const canContinue = resumeFi >= 0 || state.chapter >= 1
 
+  const snapshot = (): BattleSnapshot => ({
+    enemy: battleEnemy!,
+    eHp: state.eHp,
+    pHp: state.pHp,
+    pMp: state.pMp,
+    fwTurns: state.fwTurns,
+    eAtk: state.eAtk,
+    psnTurns: state.psnTurns,
+    sealed: state.sealed,
+    lure: state.lure,
+    mActs: state.mActs,
+  })
+
   const handleCommand = (kind: 'attack' | 'guard' | 'skill', skill?: Skill) => {
     if (!battleEnemy) return
     playSe('decide')
-    const snapshot: BattleSnapshot = {
-      enemy: battleEnemy,
-      eHp: state.eHp,
-      pHp: state.pHp,
-      pMp: state.pMp,
-      fwTurns: state.fwTurns,
-      eAtk: state.eAtk,
-      psnTurns: state.psnTurns,
-      sealed: state.sealed,
-      mActs: state.mActs,
-    }
+    const snap = snapshot()
     if (kind === 'skill') dispatch({ type: 'setMenu', menu: 'main' })
     const events = inMaouScript
       ? buildMaouActEvents(
-          snapshot,
+          snap,
           kind === 'skill' ? { kind, name: skill!.name } : { kind },
         )
       : kind === 'attack'
-        ? buildAttackEvents(snapshot)
+        ? buildAttackEvents(snap)
         : kind === 'guard'
-          ? buildGuardEvents(snapshot)
-          : buildSkillEvents(snapshot, skill!)
+          ? buildGuardEvents(snap)
+          : buildSkillEvents(snap, skill!)
     dispatch({ type: 'startQueue', events })
+  }
+
+  // アングラー戦: スキル欄に混ぜられたニセスキルを選んでしまった
+  const handleLure = () => {
+    if (!battleEnemy) return
+    playSe('decide')
+    dispatch({ type: 'setMenu', menu: 'main' })
+    dispatch({ type: 'startQueue', events: buildLureEvents(snapshot()) })
   }
 
   return (
@@ -262,6 +274,7 @@ export default function App() {
             onAttack={() => handleCommand('attack')}
             onGuard={() => handleCommand('guard')}
             onSkill={(skill) => handleCommand('skill', skill)}
+            onLure={handleLure}
             onOpenMenu={(menu) => {
               playSe('cursor')
               dispatch({ type: 'setMenu', menu })
