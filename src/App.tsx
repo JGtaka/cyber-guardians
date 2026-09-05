@@ -129,6 +129,7 @@ export default function App() {
     psnTurns: state.psnTurns,
     sealed: state.sealed,
     lure: state.lure,
+    eTurns: state.eTurns,
     mActs: state.mActs,
   })
 

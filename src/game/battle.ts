@@ -18,6 +18,7 @@ export interface BattleSnapshot {
   psnTurns: number // まどわしの毒の残りターン(ウィッチのギミック)
   sealed: SkillId | null // 暗号化封印中のスキル(デーモンのギミック)
   lure: boolean // スキル欄にニセスキルが混ざっている(アングラーのギミック)
+  eTurns: number // このバトルで敵が行動した回数(0 = 初手)
   mActs: number // 魔王戦・無敵段階での行動回数
 }
 
@@ -201,8 +202,13 @@ function pushEnemyTurn(
         fx: { pHp: -dmg, shake: true },
       })
     }
-  } else if (enemy.id === 'angler' && !snap.lure && Math.random() < 0.35) {
+  } else if (
+    enemy.id === 'angler' &&
+    !snap.lure &&
+    (snap.eTurns === 0 || Math.random() < 0.35)
+  ) {
     // ギミック: スキル欄にニセスキルを混ぜる(フィッシング=本物そっくりの偽物の表現)。
+    // 初手は必ず混ぜる(体験を確実に届ける)。以降は35%。
     // 混ざるのは1つまで。本物の『URLかくにん』で見破るか、引っかかるまで残り続ける
     dmg = 0
     halfMsgHandled = true // この手番は攻撃しないので半減表示は不要
@@ -233,6 +239,8 @@ function pushEnemyTurn(
   if (fwTurns > 0) {
     events.push({ t: '', fx: { fw: fwTurns - 1 }, skip: true })
   }
+  // 敵の行動回数を表示なしで数える(初手固定のギミック判定用)
+  events.push({ t: '', fx: { eTurns: snap.eTurns + 1 }, skip: true })
   // まどわしの毒の継続ダメージ(防御では減らせない)
   let psnDmg = 0
   if (snap.psnTurns > 0) {
