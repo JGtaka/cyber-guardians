@@ -2,6 +2,7 @@ import { badEndIdOf } from '../data/badend'
 import { ENEMIES } from '../data/enemies'
 import { MAX_HP, MAX_MP } from '../data/constants'
 import { FLOW, STORIES } from '../data/story'
+import { buildOpeningEvents, type BattleSnapshot } from './battle'
 import { emptySave, type SaveData } from './save'
 import type {
   BattleEvent,
@@ -131,6 +132,31 @@ const introEvents = (enemy: Enemy): BattleEvent[] =>
     then: i === a.length - 1 ? 'command' : undefined,
   }))
 
+// バトル開始・リトライ時に敵が先に1回行動する(魔王戦は台本なので対象外)。
+// 口上の直後に敵の行動を続けて積む(遷移先は敵の行動側の then で決まる)
+function openingEvents(s: GameState, enemy: Enemy, lead: BattleEvent[]): BattleEvent[] {
+  if (enemy.id === 'maou') return lead
+  const snap: BattleSnapshot = {
+    enemy,
+    eHp: s.eHp,
+    pHp: s.pHp,
+    pMp: s.pMp,
+    fwTurns: s.fwTurns,
+    eAtk: s.eAtk,
+    psnTurns: s.psnTurns,
+    sealed: s.sealed,
+    lure: s.lure,
+    eTurns: s.eTurns,
+    filter: s.filter,
+    gift: s.gift,
+    mActs: s.mActs,
+  }
+  return [
+    ...lead.map((ev) => ({ ...ev, then: undefined })),
+    ...buildOpeningEvents(snap),
+  ]
+}
+
 // FLOW の fi 番目に入る。バトルなら敵とキューを準備し、
 // 手帳なら図鑑を解放、章クリア画面なら章を記録する
 function enterFlow(s: GameState, fi: number): GameState {
@@ -169,7 +195,10 @@ function enterFlow(s: GameState, fi: number): GameState {
         pMp: Math.min(MAX_MP, next.pMp + 20),
       }
     }
-    return stepTo({ ...next, queue: introEvents(enemy) }, 0)
+    return stepTo(
+      { ...next, queue: openingEvents(next, enemy, introEvents(enemy)) },
+      0,
+    )
   }
   if (item.k === 'lesson') {
     // 撃破した敵をセキュリティ手帳(図鑑)に解放
@@ -266,30 +295,34 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const enemy = ENEMIES[item.e]
       // リトライ=BAD ENDINGを読み終えた印。次回の敗北からスキップできる
       const beId = badEndIdOf(item.e)
+      const fresh: GameState = {
+        ...state,
+        seenBadEnds: state.seenBadEnds.includes(beId)
+          ? state.seenBadEnds
+          : [...state.seenBadEnds, beId],
+        eHp: enemy.hp,
+        pHp: MAX_HP,
+        pMp: MAX_MP,
+        fwTurns: 0,
+        eAtk: 0,
+        psnTurns: 0,
+        sealed: null,
+        lure: false,
+        eTurns: 0,
+        filter: false,
+        gift: 'none',
+        mPhase: 0,
+        mActs: 0,
+        gameover: false,
+        menu: 'main',
+        queue: [],
+      }
       return stepTo(
         {
-          ...state,
-          seenBadEnds: state.seenBadEnds.includes(beId)
-            ? state.seenBadEnds
-            : [...state.seenBadEnds, beId],
-          eHp: enemy.hp,
-          pHp: MAX_HP,
-          pMp: MAX_MP,
-          fwTurns: 0,
-          eAtk: 0,
-          psnTurns: 0,
-          sealed: null,
-          lure: false,
-          eTurns: 0,
-          filter: false,
-          gift: 'none',
-          mPhase: 0,
-          mActs: 0,
-          gameover: false,
-          menu: 'main',
-          queue: [
+          ...fresh,
+          queue: openingEvents(fresh, enemy, [
             { t: `${enemy.name}に リベンジだ!`, fx: null, then: 'command' },
-          ],
+          ]),
         },
         0,
       )

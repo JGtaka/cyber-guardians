@@ -326,6 +326,17 @@ function pushEvadeIfPeeked(events: BattleEvent[], snap: BattleSnapshot): boolean
   return true
 }
 
+// バトル開始時・リトライ時の敵の先制行動。
+// 敵が先に動くことで「初手で必ず」のギミックがプレイヤーの行動より前に必ず見える
+// (正解を知っている周回プレイでも、脅威の体験が抜け落ちない)
+export function buildOpeningEvents(snap: BattleSnapshot): BattleEvent[] {
+  const events: BattleEvent[] = [
+    { t: `${snap.enemy.name}が 先に しかけてきた!`, fx: null },
+  ]
+  pushEnemyTurn(events, snap, false)
+  return events
+}
+
 // コマンド「たたかう」
 export function buildAttackEvents(snap: BattleSnapshot): BattleEvent[] {
   const events: BattleEvent[] = [
@@ -376,54 +387,20 @@ export function buildSkillEvents(
     // ゴブリン戦: フィルター展開前は弱点スキルでも当たらない(リソースだけ消費)
     events.unshift({ t: `{n}の ${skill.name}!`, fx: { pMp: -skill.mp } })
   } else if (skill.id === enemy.weak) {
-    // 正解: WEAK POINT演出 + 大ダメージ
-    const dmg = randInt(30, 38)
+    // 正解: WEAK POINT演出 + 一撃撃破(issue #17「正解してもただ殴るだけ」対応)。
+    // 正しい対策は脅威をまるごと無力化する=「戦うたびに、セキュリティに強くなる」の核
+    const dmg = snap.eHp
     events.push({ t: `{n}の ${skill.name}!`, fx: { pMp: -skill.mp } })
     events.push({
       t: '▶ WEAK POINT!! こうかは ばつぐんだ!',
       fx: { weak: true, eFlash: true },
     })
     events.push({
-      t: `${enemy.name}に ${dmg} のダメージ!`,
+      t: `${enemy.name}に ${dmg} のダメージ! 弱点を つかれて くずれおちた!`,
       // 弱点ヒットの音は直前の WEAK POINT(se_weak)に任せ、ここでは鳴らさない
       fx: { eHp: -dmg, eFlash: true },
     })
-    if (!pushWinIfDefeated(events, enemy, snap.eHp - dmg)) {
-      // 弱点ヒットで敵のギミック状態を解除する。解除後の状態は同じターンの敵行動にも反映する
-      let after = snap
-      // デーモン戦: バックアップ(弱点)ヒットで暗号化されたスキルも復元する
-      if (enemy.id === 'demon' && snap.sealed !== null) {
-        events.push({
-          t: `バックアップから復元! 暗号化されていた『${skillName(snap.sealed)}』が もとに戻った!`,
-          fx: { seal: null },
-        })
-        after = { ...after, sealed: null }
-      }
-      // 木馬将軍戦: スキャン(弱点)で、贈り物の中の木馬の兵を見つけて無害化する
-      if (enemy.id === 'trojan' && snap.gift !== 'none') {
-        events.push({
-          t:
-            snap.gift === 'held'
-              ? `贈り物を 開ける前に スキャンした! …中に 木馬の兵が ひそんでいた! 『${GIFT.name}』を 破棄した!`
-              : 'スキャンで ひそんでいた 木馬の兵を 見つけて 駆除した! もう 内部から あばれることはない!',
-          fx: { gift: 'none' },
-        })
-        after = { ...after, gift: 'none' }
-      }
-      // アングラー戦: 本物のURLかくにんで、混ぜられたニセスキルも見破る
-      if (enemy.id === 'angler' && snap.lure) {
-        events.push({
-          t: `ニセのスキルを 見破った! 『${LURE_SKILL.name}』は 消えさった!`,
-          fx: { lure: false },
-        })
-        after = { ...after, lure: false }
-      }
-      events.push({
-        t: 'クローンコード「それです! 正しい対策は最強の武器ですね!」',
-        fx: null,
-      })
-      pushEnemyTurn(events, after, false)
-    }
+    pushWinIfDefeated(events, enemy, 0)
   } else {
     // 不正解: 微ダメージ + 相棒のヒント(リソースのムダで学ぶ)
     const dmg = 5
