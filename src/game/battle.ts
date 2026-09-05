@@ -1,5 +1,5 @@
 import type { BattleEvent, Enemy, Skill, SkillId } from '../types'
-import { SKILLS } from '../data/skills'
+import { LURE_SKILL, SKILLS } from '../data/skills'
 import { randInt } from './random'
 
 // バトル1ターン分のイベント列を生成する関数群。
@@ -17,6 +17,8 @@ export interface BattleSnapshot {
   eAtk: number // 敵の攻撃力ボーナス(ゴーレムの毎ターン上昇ギミック)
   psnTurns: number // まどわしの毒の残りターン(ウィッチのギミック)
   sealed: SkillId | null // 暗号化封印中のスキル(デーモンのギミック)
+  lure: boolean // スキル欄にニセスキルが混ざっている(アングラーのギミック)
+  eTurns: number // このバトルで敵が行動した回数(0 = 初手)
   mActs: number // 魔王戦・無敵段階での行動回数
 }
 
@@ -200,12 +202,27 @@ function pushEnemyTurn(
         fx: { pHp: -dmg, shake: true },
       })
     }
-  } else if (Math.random() < 0.35) {
-    dmg = cut(6)
-    events.push({ t: `${enemy.name}は 怪しいリンクを送りつけた!`, fx: null })
+  } else if (
+    enemy.id === 'angler' &&
+    !snap.lure &&
+    (snap.eTurns === 0 || Math.random() < 0.35)
+  ) {
+    // ギミック: スキル欄にニセスキルを混ぜる(フィッシング=本物そっくりの偽物の表現)。
+    // 初手は必ず混ぜる(体験を確実に届ける)。以降は35%。
+    // 混ざるのは1つまで。本物の『URLかくにん』で見破るか、引っかかるまで残り続ける
+    dmg = 0
+    halfMsgHandled = true // この手番は攻撃しないので半減表示は不要
     events.push({
-      t: `リソースを 8 うばわれた! {n}に ${dmg} のダメージ!`,
-      fx: { pHp: -dmg, pMp: -8, shake: true },
+      t: `${enemy.name}は 『特別なお知らせ』を 送りつけてきた!`,
+      fx: null,
+    })
+    events.push({
+      t: '……スキル欄に なにかが まぎれこんだ!',
+      fx: { lure: true },
+    })
+    events.push({
+      t: 'クローンコード「あれ? スキルが ひとつ 増えてませんか…? {n}さん、選ぶ前に よーく見てくださいね!」',
+      fx: null,
     })
   } else {
     dmg = cut(randInt(10, 15))
@@ -222,6 +239,8 @@ function pushEnemyTurn(
   if (fwTurns > 0) {
     events.push({ t: '', fx: { fw: fwTurns - 1 }, skip: true })
   }
+  // 敵の行動回数を表示なしで数える(初手固定のギミック判定用)
+  events.push({ t: '', fx: { eTurns: snap.eTurns + 1 }, skip: true })
   // まどわしの毒の継続ダメージ(防御では減らせない)
   let psnDmg = 0
   if (snap.psnTurns > 0) {
@@ -311,6 +330,13 @@ export function buildSkillEvents(
           fx: { seal: null },
         })
       }
+      // アングラー戦: 本物のURLかくにんで、混ぜられたニセスキルも見破る
+      if (enemy.id === 'angler' && snap.lure) {
+        events.push({
+          t: `ニセのスキルを 見破った! 『${LURE_SKILL.name}』は 消えさった!`,
+          fx: { lure: false },
+        })
+      }
       events.push({
         t: 'クローンコード「それです! 正しい対策は最強の武器ですね!」',
         fx: null,
@@ -334,6 +360,41 @@ export function buildSkillEvents(
       pushEnemyTurn(events, snap, false)
     }
   }
+  return events
+}
+
+// ニセスキル(アングラーのギミック)を選んでしまった。
+// 引っかかること自体が敵の攻撃なので、この手番は敵の通常攻撃はない
+export function buildLureEvents(snap: BattleSnapshot): BattleEvent[] {
+  const dmg = 14
+  const drain = 8
+  const events: BattleEvent[] = [
+    {
+      t: `{n}の ${LURE_SKILL.name}! ……画面に 合言葉の入力欄が あらわれた。`,
+      fx: null,
+    },
+    {
+      t: `それは ニセのスキルだった! 入力した合言葉が ぬすまれた! {n}に ${dmg} のダメージ! リソースを ${drain} うばわれた!`,
+      fx: { pHp: -dmg, pMp: -drain, shake: true, lure: false },
+    },
+  ]
+  if (snap.pHp - dmg <= 0) {
+    events.push({
+      t: '{n}は システムダウンしてしまった…',
+      fx: null,
+      then: 'gameover',
+    })
+    return events
+  }
+  events.push({
+    t: `クローンコード「よく見てください! 本物は『${skillName(LURE_SKILL.mimics)}』、いま選んだのは『${LURE_SKILL.name}』——文字の形が ちがったんです!」`,
+    fx: null,
+  })
+  events.push({
+    t: 'クローンコード「偽物は 本物そっくりに 見せかけてきます。送り主と 名前の細かいところ、それが 確認ポイントですよ!」',
+    fx: null,
+    then: 'command',
+  })
   return events
 }
 
