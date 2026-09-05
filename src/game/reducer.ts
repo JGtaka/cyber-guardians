@@ -33,6 +33,7 @@ export interface GameState {
   sealed: SkillId | null // 暗号化封印中のスキル(デーモンのギミック)
   lure: boolean // スキル欄にニセスキルが混ざっている(アングラーのギミック)
   eTurns: number // このバトルで敵が行動した回数(初手固定のギミック判定用)
+  filter: boolean // 覗き見防止フィルター展開中(ゴブリンのギミック。バトルごとにリセット)
   mPhase: number // 魔王戦の段階: 0=無敵 1=クローン展開後 2=弱点発生
   mActs: number // 魔王戦・無敵段階での行動回数
   menu: Menu
@@ -80,6 +81,7 @@ export function createInitialState(save: SaveData | null): GameState {
     sealed: null,
     lure: false,
     eTurns: 0,
+    filter: false,
     mPhase: 0,
     mActs: 0,
     menu: 'main',
@@ -111,6 +113,7 @@ function applyFx(s: GameState, fx?: Fx | null): GameState {
     sealed: fx.seal !== undefined ? fx.seal : s.sealed,
     lure: fx.lure ?? s.lure,
     eTurns: fx.eTurns ?? s.eTurns,
+    filter: fx.filter ?? s.filter,
     mPhase: fx.mPhase ?? s.mPhase,
     mActs: fx.mActs ?? s.mActs,
   }
@@ -147,6 +150,7 @@ function enterFlow(s: GameState, fi: number): GameState {
       sealed: null,
       lure: false,
       eTurns: 0,
+      filter: false,
       menu: 'main',
     }
     if (item.e === 'maou') {
@@ -272,6 +276,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           sealed: null,
           lure: false,
           eTurns: 0,
+          filter: false,
           mPhase: 0,
           mActs: 0,
           gameover: false,

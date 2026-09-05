@@ -5,7 +5,7 @@ import { Window } from '../components/Window'
 import { LURE_SKILL, SKILLS } from '../data/skills'
 import { MAX_HP, MAX_MP } from '../data/constants'
 import type { GameState } from '../game/reducer'
-import type { Enemy, Menu, Skill } from '../types'
+import type { Enemy, Item, Menu, Skill } from '../types'
 
 const btnCls = 'cursor-pointer px-1 py-1.5 text-left text-[16px]'
 
@@ -19,6 +19,8 @@ interface Props {
   onGuard: () => void
   onSkill: (skill: Skill) => void
   onLure: () => void // アングラー戦: ニセスキルを選んだ
+  items: Item[] // 所持アイテム(会話で受け取ったもの)
+  onItem: (item: Item) => void
   onOpenMenu: (menu: Menu) => void
   onPatch: () => void // 魔王戦: 緊急パッチ適用
   onMythos: () => void // 魔王戦: 奥義ミュートス
@@ -35,6 +37,8 @@ export function BattleScreen({
   onGuard,
   onSkill,
   onLure,
+  items,
+  onItem,
   onOpenMenu,
   onPatch,
   onMythos,
@@ -109,6 +113,16 @@ export function BattleScreen({
           ◆ あやしいお知らせを 受信中(スキル欄に 注意)
         </p>
       )}
+      {enemy.id === 'goblin' && !state.filter && (
+        <p className="mb-2 text-[12px] text-hp-enemy">
+          ◆ 覗き見されている!(こうげきが かわされる)
+        </p>
+      )}
+      {state.filter && (
+        <p className="mb-2 text-[12px] text-patch">
+          ◆ 覗き見防止フィルター展開中(覗き見を 無効化)
+        </p>
+      )}
 
       {/* メッセージウィンドウ */}
       <Window
@@ -161,9 +175,15 @@ export function BattleScreen({
           <button className={btnCls} onClick={onGuard}>
             ▶ ぼうぎょ
           </button>
-          <button className={`${btnCls} text-sub`} disabled>
-            アイテム(未実装)
-          </button>
+          {items.length > 0 ? (
+            <button className={btnCls} onClick={() => onOpenMenu('item')}>
+              ▶ アイテム
+            </button>
+          ) : (
+            <button className={`${btnCls} text-sub`} disabled>
+              アイテム(なし)
+            </button>
+          )}
         </Window>
       ) : !inMsg && state.menu === 'skill' ? (
         <Window>
@@ -202,6 +222,30 @@ export function BattleScreen({
               btn,
             ]
           })}
+          <button
+            className={`${btnCls} text-sub`}
+            onClick={() => onOpenMenu('main')}
+          >
+            もどる
+          </button>
+        </Window>
+      ) : !inMsg && state.menu === 'item' ? (
+        <Window>
+          {items.map((it) => (
+            <button
+              key={it.id}
+              className={`${btnCls} w-full`}
+              onClick={() => onItem(it)}
+            >
+              <span className="flex justify-between">
+                <span>▶ {it.name}</span>
+                {it.id === 'filter' && state.filter && (
+                  <span className="text-[13px] text-patch">展開中</span>
+                )}
+              </span>
+              <span className="block pl-5 text-[12px] text-sub">{it.desc}</span>
+            </button>
+          ))}
           <button
             className={`${btnCls} text-sub`}
             onClick={() => onOpenMenu('main')}

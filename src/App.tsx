@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState } from 'react'
 import { BAD_ENDS, badEndIdOf } from './data/badend'
 import { countZukan, ENEMIES, ZUKAN_TOTAL } from './data/enemies'
+import { itemsAt } from './data/items'
 import {
   CHAPTER_STARTS,
   CLEARS,
@@ -19,6 +20,7 @@ import { loadSave, writeSave } from './game/save'
 import {
   buildAttackEvents,
   buildGuardEvents,
+  buildItemEvents,
   buildLureEvents,
   buildMaouActEvents,
   buildMythosEvents,
@@ -37,7 +39,7 @@ import { LessonScreen } from './screens/LessonScreen'
 import { ZukanScreen } from './screens/ZukanScreen'
 import { ClearScreen } from './screens/ClearScreen'
 import { FinaleScreen } from './screens/FinaleScreen'
-import type { BgmId, EnemyId, Skill } from './types'
+import type { BgmId, EnemyId, Item, Skill } from './types'
 
 // 進行のうちセーブ対象(名前・章・中断地点・図鑑解放・既読・ミュート)を書き出す
 function persist(state: GameState) {
@@ -130,6 +132,7 @@ export default function App() {
     sealed: state.sealed,
     lure: state.lure,
     eTurns: state.eTurns,
+    filter: state.filter,
     mActs: state.mActs,
   })
 
@@ -148,6 +151,18 @@ export default function App() {
         : kind === 'guard'
           ? buildGuardEvents(snap)
           : buildSkillEvents(snap, skill!)
+    dispatch({ type: 'startQueue', events })
+  }
+
+  // コマンド「アイテム」。魔王戦では他の行動と同じく「効いていない」扱い
+  const handleItem = (item: Item) => {
+    if (!battleEnemy) return
+    playSe('decide')
+    dispatch({ type: 'setMenu', menu: 'main' })
+    const snap = snapshot()
+    const events = inMaouScript
+      ? buildMaouActEvents(snap, { kind: 'skill', name: item.name })
+      : buildItemEvents(snap, item)
     dispatch({ type: 'startQueue', events })
   }
 
@@ -276,6 +291,8 @@ export default function App() {
             onGuard={() => handleCommand('guard')}
             onSkill={(skill) => handleCommand('skill', skill)}
             onLure={handleLure}
+            items={itemsAt(state.fi)}
+            onItem={handleItem}
             onOpenMenu={(menu) => {
               playSe('cursor')
               dispatch({ type: 'setMenu', menu })
