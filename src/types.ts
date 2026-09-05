@@ -5,7 +5,7 @@ export type SkillId =
   | 'url'
   | 'scan'
   | 'tfa'
-  | 'peek'
+  | 'lock'
   | 'backup'
   | 'call'
   | 'traffic'
@@ -16,6 +16,16 @@ export interface Skill {
   name: string
   mp: number
   type: 'attack' | 'buff'
+}
+
+// アイテム(= 現実の物理的な対策。バトル中の「アイテム」コマンドから使う)
+export type ItemId = 'filter'
+
+export interface Item {
+  id: ItemId
+  name: string
+  desc: string // アイテム欄に添える一言
+  grantedBy: StoryId // この会話で手に入る(以降のバトルで使える)
 }
 
 export type EnemyId =
@@ -108,6 +118,7 @@ export interface Fx {
   seal?: SkillId | null // 暗号化封印中のスキル(上書き。null=解除。デーモンのギミック用)
   lure?: boolean // ニセスキルの有無(上書き。アングラーのギミック用)
   eTurns?: number // 敵が行動した回数(上書き。初手固定のギミック判定用)
+  filter?: boolean // 覗き見防止フィルター展開中(上書き。ゴブリンのギミック用)
   mPhase?: number // 魔王戦の段階(上書き): 0=無敵 1=クローン展開後 2=弱点発生
   mActs?: number // 魔王戦・無敵段階での行動回数(上書き)
   eFlash?: boolean
@@ -167,4 +178,4 @@ export type FlowItem =
   | { k: 'end'; ch: number } // 章クリア(ch = クリアした章番号)
   | { k: 'end2' } // 最終決戦後の「完」
 
-export type Menu = 'main' | 'skill'
+export type Menu = 'main' | 'skill' | 'item'

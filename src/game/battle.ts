@@ -1,4 +1,4 @@
-import type { BattleEvent, Enemy, Skill, SkillId } from '../types'
+import type { BattleEvent, Enemy, Item, Skill, SkillId } from '../types'
 import { LURE_SKILL, SKILLS } from '../data/skills'
 import { randInt } from './random'
 
@@ -19,6 +19,7 @@ export interface BattleSnapshot {
   sealed: SkillId | null // 暗号化封印中のスキル(デーモンのギミック)
   lure: boolean // スキル欄にニセスキルが混ざっている(アングラーのギミック)
   eTurns: number // このバトルで敵が行動した回数(0 = 初手)
+  filter: boolean // 覗き見防止フィルター展開中(ゴブリンのギミック)
   mActs: number // 魔王戦・無敵段階での行動回数
 }
 
@@ -29,7 +30,7 @@ const SEALABLE: SkillId[] = [
   'url',
   'scan',
   'tfa',
-  'peek',
+  'lock',
   'call',
   'traffic',
 ]
@@ -137,8 +138,9 @@ function pushEnemyTurn(
       }
     }
   } else if (enemy.id === 'goblin') {
-    // ギミック: 行動を先読みして、たまに防御をすりぬける(覗き見の怖さの表現)
-    if (Math.random() < 0.3) {
+    // ギミック: 行動を先読みして、たまに防御をすりぬける(覗き見の怖さの表現)。
+    // 覗き見防止フィルターを展開すると先読みはできなくなる
+    if (!snap.filter && Math.random() < 0.3) {
       halfMsgHandled = true
       dmg = randInt(11, 15)
       events.push({
@@ -264,16 +266,34 @@ function pushEnemyTurn(
   }
 }
 
+// ゴブリン戦: 覗き見防止フィルターを展開するまで、こちらの攻撃は動きを読まれて必ずかわされる
+// (ショルダーハッキング=ネットの外の攻撃には、ネットの外の対策が要る、の表現)。
+// 回避されるなら回避イベント+敵の反撃を積んで true を返す
+function pushEvadeIfPeeked(events: BattleEvent[], snap: BattleSnapshot): boolean {
+  if (snap.enemy.id !== 'goblin' || snap.filter) return false
+  events.push({
+    t: `${snap.enemy.name}は こちらの動きを 覗き見ていた! ひらりと かわされた!`,
+    fx: { se: 'skill' },
+  })
+  events.push({
+    t: 'クローンコード「動きを読まれていたら、何をしても当たりません…! 視線を さえぎるもの——備品に ありましたよね!?」',
+    fx: null,
+  })
+  pushEnemyTurn(events, snap, false)
+  return true
+}
+
 // コマンド「たたかう」
 export function buildAttackEvents(snap: BattleSnapshot): BattleEvent[] {
-  const dmg = randInt(11, 16)
   const events: BattleEvent[] = [
     { t: '{n}の こうげき! デバッグソードのひとふり!', fx: null },
-    {
-      t: `${snap.enemy.name}に ${dmg} のダメージ!`,
-      fx: { eHp: -dmg, eFlash: true, se: 'attack' },
-    },
   ]
+  if (pushEvadeIfPeeked(events, snap)) return events
+  const dmg = randInt(11, 16)
+  events.push({
+    t: `${snap.enemy.name}に ${dmg} のダメージ!`,
+    fx: { eHp: -dmg, eFlash: true, se: 'attack' },
+  })
   if (!pushWinIfDefeated(events, snap.enemy, snap.eHp - dmg)) {
     pushEnemyTurn(events, snap, false)
   }
@@ -309,6 +329,9 @@ export function buildSkillEvents(
       fx: null,
     })
     pushEnemyTurn(events, snap, false)
+  } else if (pushEvadeIfPeeked(events, snap)) {
+    // ゴブリン戦: フィルター展開前は弱点スキルでも当たらない(リソースだけ消費)
+    events.unshift({ t: `{n}の ${skill.name}!`, fx: { pMp: -skill.mp } })
   } else if (skill.id === enemy.weak) {
     // 正解: WEAK POINT演出 + 大ダメージ
     const dmg = randInt(30, 38)
@@ -395,6 +418,42 @@ export function buildLureEvents(snap: BattleSnapshot): BattleEvent[] {
     fx: null,
     then: 'command',
   })
+  return events
+}
+
+// コマンド「アイテム」。覗き見防止フィルターはゴブリン戦でのみ意味がある
+export function buildItemEvents(
+  snap: BattleSnapshot,
+  item: Item,
+): BattleEvent[] {
+  const { enemy } = snap
+  if (enemy.id === 'goblin' && snap.filter) {
+    return [
+      { t: `${item.name}は もう はりつけてある!`, fx: null, then: 'command' },
+    ]
+  }
+  const events: BattleEvent[] = []
+  if (enemy.id === 'goblin') {
+    events.push({
+      t: `{n}は ${item.name}を 画面に はりつけた!`,
+      fx: { filter: true, se: 'skill' },
+    })
+    events.push({
+      t: 'ゴブリン「な、なにも見えねぇ!」 覗き見が 通じなくなった! もう こうげきは かわされない!',
+      fx: { eFlash: true },
+    })
+    events.push({
+      t: 'クローンコード「ネットの外からの攻撃には、ネットの外の対策! これで 反撃できますよ、{n}さん!」',
+      fx: null,
+    })
+  } else {
+    events.push({ t: `{n}は ${item.name}を つかった!`, fx: null })
+    events.push({
+      t: '…いまは 覗き見されて いないようだ。',
+      fx: null,
+    })
+  }
+  pushEnemyTurn(events, snap, false)
   return events
 }
 
