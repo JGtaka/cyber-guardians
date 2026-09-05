@@ -2,6 +2,7 @@ import { Bar } from '../components/Bar'
 import { MuteButton } from '../components/MuteButton'
 import { Sprite } from '../components/Sprite'
 import { Window } from '../components/Window'
+import { GIFT } from '../data/items'
 import { LURE_SKILL, SKILLS } from '../data/skills'
 import { MAX_HP, MAX_MP } from '../data/constants'
 import type { GameState } from '../game/reducer'
@@ -21,6 +22,7 @@ interface Props {
   onLure: () => void // アングラー戦: ニセスキルを選んだ
   items: Item[] // 所持アイテム(会話で受け取ったもの)
   onItem: (item: Item) => void
+  onGift: () => void // 木馬将軍戦: 贈り物を開けた
   onOpenMenu: (menu: Menu) => void
   onPatch: () => void // 魔王戦: 緊急パッチ適用
   onMythos: () => void // 魔王戦: 奥義ミュートス
@@ -39,6 +41,7 @@ export function BattleScreen({
   onLure,
   items,
   onItem,
+  onGift,
   onOpenMenu,
   onPatch,
   onMythos,
@@ -46,6 +49,7 @@ export function BattleScreen({
   const inMsg = state.qi >= 0 && state.qi < state.queue.length
   const cur = inMsg ? state.queue[state.qi] : null
   const isMaou = enemy.id === 'maou'
+  const hasGift = state.gift === 'held'
 
   return (
     <div>
@@ -123,6 +127,16 @@ export function BattleScreen({
           ◆ 覗き見防止フィルター展開中(覗き見を 無効化)
         </p>
       )}
+      {hasGift && (
+        <p className="mb-2 text-[12px] text-sub">
+          ◆ 将軍の贈り物を 持っている(未開封・アイテム欄)
+        </p>
+      )}
+      {state.gift === 'active' && (
+        <p className="mb-2 text-[12px] text-hp-enemy">
+          ◆ 体の中で なにかが うごめいている…
+        </p>
+      )}
 
       {/* メッセージウィンドウ */}
       <Window
@@ -175,7 +189,7 @@ export function BattleScreen({
           <button className={btnCls} onClick={onGuard}>
             ▶ ぼうぎょ
           </button>
-          {items.length > 0 ? (
+          {items.length > 0 || hasGift ? (
             <button className={btnCls} onClick={() => onOpenMenu('item')}>
               ▶ アイテム
             </button>
@@ -231,6 +245,14 @@ export function BattleScreen({
         </Window>
       ) : !inMsg && state.menu === 'item' ? (
         <Window>
+          {hasGift && (
+            <button className={`${btnCls} w-full`} onClick={onGift}>
+              <span className="block">▶ {GIFT.name}</span>
+              <span className="block pl-5 text-[12px] text-sub">
+                {GIFT.desc}
+              </span>
+            </button>
+          )}
           {items.map((it) => (
             <button
               key={it.id}

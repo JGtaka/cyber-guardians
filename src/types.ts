@@ -28,6 +28,9 @@ export interface Item {
   grantedBy: StoryId // この会話で手に入る(以降のバトルで使える)
 }
 
+// トロイの木馬将軍の贈り物の状態(none=なし held=未開封 latent=開封後・潜伏 active=発動直前)
+export type GiftState = 'none' | 'held' | 'latent' | 'active'
+
 export type EnemyId =
   | 'slime'
   | 'angler'
@@ -119,6 +122,7 @@ export interface Fx {
   lure?: boolean // ニセスキルの有無(上書き。アングラーのギミック用)
   eTurns?: number // 敵が行動した回数(上書き。初手固定のギミック判定用)
   filter?: boolean // 覗き見防止フィルター展開中(上書き。ゴブリンのギミック用)
+  gift?: GiftState // 将軍の贈り物の状態(上書き。トロイの木馬のギミック用)
   mPhase?: number // 魔王戦の段階(上書き): 0=無敵 1=クローン展開後 2=弱点発生
   mActs?: number // 魔王戦・無敵段階での行動回数(上書き)
   eFlash?: boolean

@@ -19,6 +19,7 @@ import {
 import { loadSave, writeSave } from './game/save'
 import {
   buildAttackEvents,
+  buildGiftEvents,
   buildGuardEvents,
   buildItemEvents,
   buildLureEvents,
@@ -133,6 +134,7 @@ export default function App() {
     lure: state.lure,
     eTurns: state.eTurns,
     filter: state.filter,
+    gift: state.gift,
     mActs: state.mActs,
   })
 
@@ -164,6 +166,14 @@ export default function App() {
       ? buildMaouActEvents(snap, { kind: 'skill', name: item.name })
       : buildItemEvents(snap, item)
     dispatch({ type: 'startQueue', events })
+  }
+
+  // 木馬将軍戦: アイテム欄の贈り物を開けた
+  const handleGift = () => {
+    if (!battleEnemy) return
+    playSe('decide')
+    dispatch({ type: 'setMenu', menu: 'main' })
+    dispatch({ type: 'startQueue', events: buildGiftEvents(snapshot()) })
   }
 
   // アングラー戦: スキル欄に混ぜられたニセスキルを選んでしまった
@@ -293,6 +303,7 @@ export default function App() {
             onLure={handleLure}
             items={itemsAt(state.fi)}
             onItem={handleItem}
+            onGift={handleGift}
             onOpenMenu={(menu) => {
               playSe('cursor')
               dispatch({ type: 'setMenu', menu })
