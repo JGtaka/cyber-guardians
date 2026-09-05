@@ -12,6 +12,15 @@ export const ITEMS: Record<ItemId, Item> = {
   },
 }
 
+// トロイの木馬将軍がバトル中に差し出す贈り物(所持品ではなく、そのバトル限定。issue #25)。
+// 便利なもののフリをして入り込む=中に木馬の兵が潜んでいる
+export const GIFT = {
+  name: 'かいふくのくすり',
+  desc: '将軍の贈り物。稼働率が 20 回復…らしい',
+  heal: 20,
+  burst: 24, // 潜伏していた木馬の兵の内部ダメージ(防御では防げない)
+}
+
 const grantFi = (item: Item) =>
   FLOW.findIndex((f) => f.k === 'story' && f.id === item.grantedBy)
 

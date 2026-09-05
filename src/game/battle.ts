@@ -1,4 +1,12 @@
-import type { BattleEvent, Enemy, Item, Skill, SkillId } from '../types'
+import type {
+  BattleEvent,
+  Enemy,
+  GiftState,
+  Item,
+  Skill,
+  SkillId,
+} from '../types'
+import { GIFT } from '../data/items'
 import { LURE_SKILL, SKILLS } from '../data/skills'
 import { randInt } from './random'
 
@@ -20,6 +28,7 @@ export interface BattleSnapshot {
   lure: boolean // スキル欄にニセスキルが混ざっている(アングラーのギミック)
   eTurns: number // このバトルで敵が行動した回数(0 = 初手)
   filter: boolean // 覗き見防止フィルター展開中(ゴブリンのギミック)
+  gift: GiftState // 将軍の贈り物の状態(トロイの木馬のギミック)
   mActs: number // 魔王戦・無敵段階での行動回数
 }
 
@@ -186,15 +195,38 @@ function pushEnemyTurn(
       fx: { pHp: -dmg, shake: true },
     })
   } else if (enemy.id === 'trojan') {
-    if (Math.random() < 0.35) {
-      dmg = cut(randInt(14, 18))
+    // ギミック: 便利なもののフリをした贈り物を差し出す(トロイの木馬の表現)。
+    // 開けると回復するが、中の木馬の兵が潜伏し、後のターンに内部から暴れる
+    if (snap.gift === 'active') {
+      // 潜伏していた兵が発動。内部からなので防御では防げない
+      halfMsgHandled = true
+      dmg = GIFT.burst
       events.push({
-        t: `${enemy.name}は ニセの贈り物ばこを 投げつけた!`,
-        fx: null,
+        t: '贈り物に ひそんでいた 木馬の兵が あばれだした!',
+        fx: { gift: 'none' },
       })
       events.push({
-        t: `箱から ワナが とびだした! {n}に ${dmg} のダメージ!`,
+        t: `内部からの こうげき! ぼうぎょを すりぬけて {n}に ${dmg} のダメージ!`,
         fx: { pHp: -dmg, shake: true },
+      })
+      events.push({
+        t: 'クローンコード「中に 何か 入っていたんです…! 開ける前に 調べていれば…!」',
+        fx: null,
+      })
+    } else if (
+      snap.gift === 'none' &&
+      (snap.eTurns === 0 || Math.random() < 0.35)
+    ) {
+      // 贈り物を差し出す(初手は必ず)。この手番は攻撃しない
+      dmg = 0
+      halfMsgHandled = true
+      events.push({
+        t: `${enemy.name}は 『${GIFT.name}』を さしだしてきた! 将軍「ほれ、進呈しよう。遠慮はいらんぞ」`,
+        fx: { gift: 'held' },
+      })
+      events.push({
+        t: 'クローンコード「敵からの贈り物ですよ!? …でも『回復』って書いてありますね…。{n}さん、開ける前に できること、ありますよね?」',
+        fx: null,
       })
     } else {
       dmg = cut(randInt(12, 16))
@@ -203,6 +235,17 @@ function pushEnemyTurn(
         t: `{n}に ${dmg} のダメージ!`,
         fx: { pHp: -dmg, shake: true },
       })
+      if (snap.gift === 'latent') {
+        // 開封後の潜伏: 次の敵ターンで発動する予兆(半減表示より後に出す)
+        if (half) {
+          events.push({ t: '防御で ダメージを半減した!', fx: null })
+          halfMsgHandled = true
+        }
+        events.push({
+          t: '…{n}の中で なにかが 動いた気がする。',
+          fx: { gift: 'active' },
+        })
+      }
     }
   } else if (
     enemy.id === 'angler' &&
@@ -346,12 +389,26 @@ export function buildSkillEvents(
       fx: { eHp: -dmg, eFlash: true },
     })
     if (!pushWinIfDefeated(events, enemy, snap.eHp - dmg)) {
+      // 弱点ヒットで敵のギミック状態を解除する。解除後の状態は同じターンの敵行動にも反映する
+      let after = snap
       // デーモン戦: バックアップ(弱点)ヒットで暗号化されたスキルも復元する
       if (enemy.id === 'demon' && snap.sealed !== null) {
         events.push({
           t: `バックアップから復元! 暗号化されていた『${skillName(snap.sealed)}』が もとに戻った!`,
           fx: { seal: null },
         })
+        after = { ...after, sealed: null }
+      }
+      // 木馬将軍戦: スキャン(弱点)で、贈り物の中の木馬の兵を見つけて無害化する
+      if (enemy.id === 'trojan' && snap.gift !== 'none') {
+        events.push({
+          t:
+            snap.gift === 'held'
+              ? `贈り物を 開ける前に スキャンした! …中に 木馬の兵が ひそんでいた! 『${GIFT.name}』を 破棄した!`
+              : 'スキャンで ひそんでいた 木馬の兵を 見つけて 駆除した! もう 内部から あばれることはない!',
+          fx: { gift: 'none' },
+        })
+        after = { ...after, gift: 'none' }
       }
       // アングラー戦: 本物のURLかくにんで、混ぜられたニセスキルも見破る
       if (enemy.id === 'angler' && snap.lure) {
@@ -359,12 +416,13 @@ export function buildSkillEvents(
           t: `ニセのスキルを 見破った! 『${LURE_SKILL.name}』は 消えさった!`,
           fx: { lure: false },
         })
+        after = { ...after, lure: false }
       }
       events.push({
         t: 'クローンコード「それです! 正しい対策は最強の武器ですね!」',
         fx: null,
       })
-      pushEnemyTurn(events, snap, false)
+      pushEnemyTurn(events, after, false)
     }
   } else {
     // 不正解: 微ダメージ + 相棒のヒント(リソースのムダで学ぶ)
@@ -453,6 +511,19 @@ export function buildItemEvents(
       fx: null,
     })
   }
+  pushEnemyTurn(events, snap, false)
+  return events
+}
+
+// 将軍の贈り物を開けて飲む(トロイの木馬のギミック)。回復するが、中の兵が潜伏する
+export function buildGiftEvents(snap: BattleSnapshot): BattleEvent[] {
+  const events: BattleEvent[] = [
+    {
+      t: `{n}は 『${GIFT.name}』を のんだ! 稼働率が ${GIFT.heal} 回復した!`,
+      fx: { pHp: GIFT.heal, gift: 'latent', se: 'skill' },
+    },
+    { t: `将軍「ふふ…気に入ってもらえたようで なによりだ」`, fx: null },
+  ]
   pushEnemyTurn(events, snap, false)
   return events
 }

@@ -9,6 +9,7 @@ import type {
   EnemyId,
   Fx,
   FlowItem,
+  GiftState,
   Menu,
   SkillId,
   StoryId,
@@ -34,6 +35,7 @@ export interface GameState {
   lure: boolean // スキル欄にニセスキルが混ざっている(アングラーのギミック)
   eTurns: number // このバトルで敵が行動した回数(初手固定のギミック判定用)
   filter: boolean // 覗き見防止フィルター展開中(ゴブリンのギミック。バトルごとにリセット)
+  gift: GiftState // 将軍の贈り物の状態(トロイの木馬のギミック。バトルごとにリセット)
   mPhase: number // 魔王戦の段階: 0=無敵 1=クローン展開後 2=弱点発生
   mActs: number // 魔王戦・無敵段階での行動回数
   menu: Menu
@@ -82,6 +84,7 @@ export function createInitialState(save: SaveData | null): GameState {
     lure: false,
     eTurns: 0,
     filter: false,
+    gift: 'none',
     mPhase: 0,
     mActs: 0,
     menu: 'main',
@@ -114,6 +117,7 @@ function applyFx(s: GameState, fx?: Fx | null): GameState {
     lure: fx.lure ?? s.lure,
     eTurns: fx.eTurns ?? s.eTurns,
     filter: fx.filter ?? s.filter,
+    gift: fx.gift ?? s.gift,
     mPhase: fx.mPhase ?? s.mPhase,
     mActs: fx.mActs ?? s.mActs,
   }
@@ -151,6 +155,7 @@ function enterFlow(s: GameState, fi: number): GameState {
       lure: false,
       eTurns: 0,
       filter: false,
+      gift: 'none',
       menu: 'main',
     }
     if (item.e === 'maou') {
@@ -277,6 +282,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lure: false,
           eTurns: 0,
           filter: false,
+          gift: 'none',
           mPhase: 0,
           mActs: 0,
           gameover: false,
